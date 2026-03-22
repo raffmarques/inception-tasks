@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronLeft, faChevronRight, faCircleDot, faRightFromBracket, faCrosshairs, faGripLines, faCalendar, faList } from '@fortawesome/free-solid-svg-icons';
+import { faChevronLeft, faChevronRight, faCircleDot, faRightFromBracket, faCalendar, faList } from '@fortawesome/free-solid-svg-icons';
 import type { ZoomLevel, ViewMode } from '../../types';
 import type { SyncStatus } from '../../hooks/useSync';
 import type { GCalStatus } from '../../hooks/useGoogleCalendar';
@@ -81,22 +81,22 @@ export function Layout({
   return (
     <div className={`layout ${isFlow ? 'layout--flow' : ''}`}>
       <header className={`layout__header ${isFlow ? 'layout__header--flow' : ''}`}>
+        {/* Brand row */}
         <div className="layout__top-row">
           <div className="layout__top-left">
-            <ZoomNav current={currentZoom} onChange={onZoomChange} />
-            <button
-              className={`layout__mode-btn ${isFlow ? 'layout__mode-btn--active' : ''}`}
-              onClick={() => onViewModeChange(isFlow ? 'focus' : 'flow')}
-              title={isFlow ? 'Switch to focus mode' : 'Switch to flow mode'}
-            >
-              <FontAwesomeIcon icon={isFlow ? faCrosshairs : faGripLines} size="sm" />
-            </button>
+            <span className="layout__brand">bujo</span>
+            <span className="layout__date-sub">{getHeader(currentZoom, currentDate).toLowerCase()}</span>
           </div>
           <div className="layout__top-right">
-            <span
-              className={`layout__sync layout__sync--${syncStatus}`}
-              title={syncLabels[syncStatus]}
-            >
+            <button
+              className={`layout__mode-btn${viewMode === 'focus' ? ' layout__mode-btn--active' : ''}`}
+              onClick={() => onViewModeChange('focus')}
+            >focus</button>
+            <button
+              className={`layout__mode-btn${viewMode === 'flow' ? ' layout__mode-btn--active' : ''}`}
+              onClick={() => onViewModeChange('flow')}
+            >flow</button>
+            <span className={`layout__sync layout__sync--${syncStatus}`} title={syncLabels[syncStatus]}>
               <span className="layout__sync-dot" />
             </span>
             {!isToday && (
@@ -106,20 +106,12 @@ export function Layout({
               </button>
             )}
             {gcalEnabled && gcalStatus === 'disconnected' && (
-              <button
-                className="layout__gcal-btn"
-                onClick={onGcalConnect}
-                title="Connect Google Calendar"
-              >
+              <button className="layout__gcal-btn" onClick={onGcalConnect} title="Connect Google Calendar">
                 <FontAwesomeIcon icon={faCalendar} size="sm" />
               </button>
             )}
             {gcalEnabled && gcalStatus === 'connected' && (
-              <button
-                className="layout__gcal-btn layout__gcal-btn--connected"
-                onClick={onGcalDisconnect}
-                title="Disconnect Google Calendar"
-              >
+              <button className="layout__gcal-btn layout__gcal-btn--connected" onClick={onGcalDisconnect} title="Disconnect Google Calendar">
                 <FontAwesomeIcon icon={faCalendar} size="sm" />
               </button>
             )}
@@ -145,14 +137,18 @@ export function Layout({
           </div>
         </div>
 
+        {/* Zoom strip */}
+        <div className="layout__zoom-strip">
+          <ZoomNav current={currentZoom} onChange={onZoomChange} />
+        </div>
+
+        {/* Date nav — focus mode only */}
         {!isFlow && (
           <div className="layout__date-row">
             <button className="layout__nav-btn" onClick={() => onNavigate('prev')}>
               <FontAwesomeIcon icon={faChevronLeft} />
             </button>
-            <h1 className="layout__date-title">
-              {getHeader(currentZoom, currentDate)}
-            </h1>
+            <h1 className="layout__date-title">{getHeader(currentZoom, currentDate)}</h1>
             <button className="layout__nav-btn" onClick={() => onNavigate('next')}>
               <FontAwesomeIcon icon={faChevronRight} />
             </button>
@@ -163,13 +159,35 @@ export function Layout({
       <main className={`layout__content ${isFlow ? 'layout__content--flow' : ''}`}>{children}</main>
 
       <footer className="layout__footer">
-        <a
-          className="layout__design-link"
-          href="#/design-system"
-        >
-          Design System
-        </a>
+        <a className="layout__design-link" href="#/design-system">Design System</a>
       </footer>
+
+      {/* Mobile bottom nav */}
+      <nav className="layout__bottom-nav">
+        <button
+          className={`layout__bottom-nav-item${viewMode === 'focus' ? ' active' : ''}`}
+          onClick={() => onViewModeChange('focus')}
+        >
+          <span className="layout__bottom-nav-icon">○</span>
+          <span className="layout__bottom-nav-label">focus</span>
+        </button>
+        <button
+          className={`layout__bottom-nav-item${viewMode === 'flow' ? ' active' : ''}`}
+          onClick={() => onViewModeChange('flow')}
+        >
+          <span className="layout__bottom-nav-icon">≡</span>
+          <span className="layout__bottom-nav-label">flow</span>
+        </button>
+        {onToggleLists && (
+          <button
+            className={`layout__bottom-nav-item${listsOpen ? ' active' : ''}`}
+            onClick={onToggleLists}
+          >
+            <span className="layout__bottom-nav-icon">⊞</span>
+            <span className="layout__bottom-nav-label">lists</span>
+          </button>
+        )}
+      </nav>
     </div>
   );
 }
