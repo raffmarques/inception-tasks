@@ -1,0 +1,128 @@
+.year-view {
+  width: 100%;
+  overflow: hidden;
+}
+
+.year-view__scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: var(--space-md);
+}
+
+.year-view__table {
+  border-collapse: collapse;
+  font-size: var(--fs-xs);
+  font-family: var(--font-mono);
+  white-space: nowrap;
+}
+
+/* Corner cell (year label) */
+.year-view__corner {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  background: var(--bg);
+  padding: var(--space-xs) var(--space-sm);
+  text-align: left;
+  font-weight: 600;
+  font-size: var(--fs-sm);
+  color: var(--text);
+  border-bottom: 1px solid var(--border);
+}
+
+/* Weekday header cells */
+.year-view__weekday {
+  padding: var(--space-xs) 2px;
+  text-align: center;
+  font-weight: 500;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+  min-width: 28px;
+}
+
+.year-view__weekday--weekend {
+  color: var(--accent);
+  background: var(--accent-light);
+}
+
+/* Month label (left column) */
+.year-view__month-label {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: var(--bg);
+  padding: var(--space-sm) var(--space-sm);
+  font-weight: 600;
+  font-size: var(--fs-sm);
+  color: var(--text);
+  vertical-align: middle;
+  border-bottom: 1px solid var(--border-light);
+}
+
+/* Day cells */
+.year-view__cell {
+  padding: 4px 2px;
+  text-align: center;
+  vertical-align: middle;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border-light);
+  transition: background 0.1s;
+  min-width: 28px;
+  height: 32px;
+}
+
+.year-view__cell:hover:not(.year-view__cell--empty) {
+  background: var(--border-light);
+}
+
+.year-view__cell--empty {
+  cursor: default;
+}
+
+.year-view__cell--weekend {
+  background: var(--accent-light);
+}
+
+.year-view__cell--weekend.year-view__cell--empty {
+  background: var(--accent-light);
+}
+
+.year-view__cell--today {
+  background: var(--accent);
+}
+
+.year-view__cell--today .year-view__day-num {
+  color: white;
+  font-weight: 700;
+}
+
+.year-view__cell--has-tasks {
+  position: relative;
+}
+
+.year-view__cell--has-tasks::after {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.year-view__cell--today.year-view__cell--has-tasks::after {
+  background: white;
+}
+
+/* Day number */
+.year-view__day-num {
+  font-size: var(--fs-xs);
+  color: var(--text);
+  line-height: 1;
+}
+
+.year-view__cell--weekend .year-view__day-num {
+  color: var(--accent);
+}

@@ -1,0 +1,80 @@
+.time-estimate-prompt__overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  background: rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-lg);
+}
+
+.time-estimate-prompt {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  width: 100%;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.time-estimate-prompt__task {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.time-estimate-prompt__label {
+  font-size: var(--fs-base);
+  font-weight: 600;
+  font-family: var(--font-sans);
+}
+
+.time-estimate-prompt__input-row {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.time-estimate-prompt__input {
+  flex: 1;
+}
+
+.time-estimate-prompt__btn {
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  transition: all 0.15s;
+}
+
+.time-estimate-prompt__btn--confirm {
+  color: var(--success);
+}
+
+.time-estimate-prompt__btn--confirm:hover:not(:disabled) {
+  border-color: var(--success);
+  background: rgba(39, 174, 96, 0.08);
+}
+
+.time-estimate-prompt__btn--confirm:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.time-estimate-prompt__btn--cancel {
+  color: var(--text-muted);
+}
+
+.time-estimate-prompt__btn--cancel:hover {
+  border-color: var(--danger);
+  color: var(--danger);
+  background: rgba(192, 57, 43, 0.08);
+}

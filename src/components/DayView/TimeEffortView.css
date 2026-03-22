@@ -1,0 +1,177 @@
+.time-effort {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+/* === Slider === */
+.time-effort__slider-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--space-xs);
+}
+
+.time-effort__slider-label {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.time-effort__slider-value {
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.time-effort__slider {
+  width: 100%;
+  accent-color: var(--accent);
+  height: 4px;
+  margin: var(--space-xs) 0;
+}
+
+/* === Progress bar === */
+.time-effort__progress {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-sm);
+}
+
+.time-effort__progress-bar {
+  flex: 1;
+  height: 6px;
+  background: var(--border-light);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.time-effort__progress-fill {
+  height: 100%;
+  background: var(--success);
+  border-radius: 3px;
+  transition: width 0.3s, background 0.3s;
+}
+
+.time-effort__progress-fill--warn {
+  background: var(--accent);
+}
+
+.time-effort__progress-fill--over {
+  background: var(--danger);
+}
+
+.time-effort__progress-text {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  white-space: nowrap;
+  min-width: fit-content;
+}
+
+/* === Session drop zone === */
+.time-effort__session {
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-sm);
+  min-height: 80px;
+  transition: all 0.15s;
+}
+
+.time-effort__session--over {
+  border-color: var(--accent);
+  background: var(--accent-light);
+}
+
+.time-effort__session-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: var(--space-sm);
+  padding: 0 var(--space-xs);
+}
+
+.time-effort__session-count {
+  font-size: var(--fs-xs);
+  color: var(--text-faint);
+  margin-left: auto;
+}
+
+.time-effort__session-empty {
+  text-align: center;
+  padding: var(--space-lg);
+  color: var(--text-faint);
+  font-size: var(--fs-xs);
+}
+
+/* === Task wrapper with meta === */
+.time-effort__task-wrapper {
+  position: relative;
+}
+
+.time-effort__task-meta {
+  position: absolute;
+  top: 50%;
+  right: -4px;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.time-effort__task-wrapper:hover .time-effort__task-meta {
+  opacity: 1;
+}
+
+.time-effort__task-time {
+  font-size: var(--fs-xs);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.time-effort__remove-btn {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--fs-xs);
+  color: var(--text-faint);
+  border-radius: 50%;
+  transition: all 0.15s;
+}
+
+.time-effort__remove-btn:hover {
+  color: var(--danger);
+  background: var(--border-light);
+}
+
+@media (hover: none) {
+  .time-effort__task-meta {
+    opacity: 1;
+  }
+}
+
+/* === Available tasks === */
+.time-effort__available {
+  margin-top: var(--space-sm);
+}
+
+.time-effort__available-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: var(--space-xs);
+  padding: 0 var(--space-xs);
+}

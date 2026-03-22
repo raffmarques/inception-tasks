@@ -1,0 +1,184 @@
+.highlight {
+  background: var(--bg-highlight);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius);
+  padding: var(--space-md);
+  margin-bottom: var(--space-lg);
+}
+
+.highlight--drop-active {
+  border-color: var(--accent);
+  background: var(--accent-light);
+  box-shadow: 0 0 0 2px var(--accent);
+}
+
+.highlight__icon {
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+/* === Empty state === */
+.highlight--empty .highlight__prompt {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  color: var(--text-muted);
+  margin-bottom: var(--space-sm);
+  font-size: var(--fs-base);
+}
+
+.highlight--empty .highlight__actions {
+  display: flex;
+  gap: var(--space-sm);
+  margin-left: calc(var(--space-sm) + 14px + var(--space-sm));
+}
+
+.highlight__btn {
+  padding: var(--space-xs) var(--space-sm);
+  font-size: var(--fs-sm);
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+}
+
+.highlight__btn:hover {
+  background: var(--accent-light);
+}
+
+.highlight__btn--secondary {
+  color: var(--text-muted);
+  border-color: var(--border);
+}
+
+.highlight__btn--secondary:hover {
+  background: var(--bg);
+}
+
+/* === Set state === */
+.highlight--set {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.highlight__content {
+  flex: 1;
+  font-size: var(--fs-lg);
+  font-weight: 500;
+  color: var(--text);
+}
+
+.highlight__set-actions {
+  display: flex;
+  gap: var(--space-xs);
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.highlight--set:hover .highlight__set-actions {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .highlight__set-actions {
+    opacity: 1;
+  }
+}
+
+.highlight__edit-btn,
+.highlight__clear-btn {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--fs-sm);
+  color: var(--text-faint);
+  border-radius: var(--radius);
+}
+
+.highlight__edit-btn:hover {
+  background: var(--border-light);
+  color: var(--text-muted);
+}
+
+.highlight__clear-btn:hover {
+  background: var(--border-light);
+  color: var(--danger);
+}
+
+/* === Editing state === */
+.highlight--editing {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-sm);
+}
+
+.highlight--editing .highlight__icon {
+  margin-top: 6px;
+}
+
+.highlight__edit-row {
+  flex: 1;
+  display: flex;
+  gap: var(--space-xs);
+}
+
+.highlight__input {
+  flex: 1;
+  font-size: var(--fs-lg);
+  padding: var(--space-xs) var(--space-sm);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  background: var(--bg-elevated);
+}
+
+.highlight__confirm,
+.highlight__cancel {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius);
+  color: var(--text-muted);
+}
+
+.highlight__confirm:hover {
+  background: var(--success);
+  color: white;
+}
+
+.highlight__cancel:hover {
+  background: var(--border-light);
+  color: var(--danger);
+}
+
+/* === Task picker === */
+.highlight__task-picker {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  margin-top: var(--space-sm);
+}
+
+.highlight--editing .highlight__task-picker {
+  flex: 1;
+  margin-top: 0;
+}
+
+.highlight__task-option {
+  text-align: left;
+  padding: var(--space-sm) var(--space-md);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius);
+  font-size: var(--fs-base);
+  color: var(--text);
+  background: var(--bg-elevated);
+}
+
+.highlight__task-option:hover {
+  border-color: var(--accent);
+  background: var(--accent-light);
+}

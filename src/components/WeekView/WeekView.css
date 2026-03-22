@@ -1,0 +1,258 @@
+.week-view {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+/* Week highlight */
+.week-view__highlight {
+  background: var(--bg-highlight);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius);
+  padding: var(--space-md);
+}
+
+.week-view__highlight-set,
+.week-view__highlight-empty {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.week-view__sun {
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.week-view__highlight-text {
+  flex: 1;
+  font-weight: 500;
+}
+
+.week-view__highlight-clear {
+  font-size: var(--fs-xs);
+  color: var(--text-faint);
+}
+
+.week-view__highlight-clear:hover {
+  color: var(--danger);
+}
+
+.week-view__highlight-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: var(--space-xs);
+}
+
+.week-view__highlight-input:focus {
+  border: none;
+}
+
+/* Two-column body */
+.week-view__body {
+  display: flex;
+  gap: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+/* Left: day list */
+.week-view__days {
+  flex: 1;
+  min-width: 0;
+  border-right: 1px solid var(--border);
+}
+
+/* Day row */
+.week-view__day-row {
+  border-bottom: 1px solid var(--border-light);
+  padding: var(--space-xs) var(--space-sm);
+  min-height: 32px;
+}
+
+.week-view__day-row:last-child {
+  border-bottom: none;
+}
+
+.week-view__day-row--today {
+  background: var(--accent-light);
+}
+
+.week-view__day-row--weekend {
+  opacity: 0.45;
+}
+
+.week-view__day-row--over {
+  background: var(--accent-light);
+  border-left: 2px solid var(--accent);
+}
+
+/* Day header */
+.week-view__day-header {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+}
+
+.week-view__day-date {
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  color: var(--text);
+  min-width: 52px;
+  text-align: left;
+  padding: 0;
+  line-height: 1.6;
+}
+
+.week-view__day-row--today .week-view__day-date {
+  color: var(--accent);
+}
+
+.week-view__day-highlight {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-size: var(--fs-xs);
+  color: var(--accent);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Tasks under a day */
+.week-view__day-tasks {
+  padding-left: 52px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.week-view__day-task {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-xs);
+  font-size: var(--fs-sm);
+  line-height: 1.5;
+  text-align: left;
+  padding: 0;
+  color: var(--text);
+}
+
+.week-view__day-task-sig {
+  width: 12px;
+  flex-shrink: 0;
+  font-size: var(--fs-xs);
+  text-align: center;
+}
+
+.week-view__day-task-content {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.week-view__day-task--completed {
+  color: var(--text-muted);
+  text-decoration: line-through;
+}
+
+.week-view__day-task--cancelled {
+  color: var(--text-faint);
+  text-decoration: line-through;
+}
+
+.week-view__day-task--migrated,
+.week-view__day-task--scheduled {
+  color: var(--text-faint);
+}
+
+/* Right: week tasks panel */
+.week-view__panel {
+  width: 148px;
+  flex-shrink: 0;
+  padding: var(--space-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.week-view__panel-label {
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding-bottom: var(--space-xs);
+}
+
+/* Draggable week task card */
+.week-view__week-task {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-size: var(--fs-sm);
+  padding: 3px var(--space-xs);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-elevated);
+  cursor: grab;
+  touch-action: none;
+  line-height: 1.4;
+}
+
+.week-view__week-task--dragging {
+  opacity: 0.4;
+}
+
+.week-view__week-task--overlay {
+  cursor: grabbing;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.week-view__week-task-grip {
+  color: var(--text-faint);
+  font-size: var(--fs-xs);
+  flex-shrink: 0;
+}
+
+.week-view__week-task-sig {
+  width: 12px;
+  flex-shrink: 0;
+  font-size: var(--fs-xs);
+  text-align: center;
+}
+
+.week-view__week-task-content {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+}
+
+/* Add task */
+.week-view__panel-add {
+  font-size: var(--fs-xs);
+  color: var(--text-faint);
+  text-align: left;
+  padding: var(--space-xs) 0;
+  border-top: 1px solid var(--border-light);
+  margin-top: auto;
+}
+
+.week-view__panel-add:hover {
+  color: var(--text-muted);
+}
+
+.week-view__panel-input {
+  font-size: var(--fs-sm);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  padding: 3px var(--space-xs);
+  background: var(--bg-elevated);
+  width: 100%;
+}

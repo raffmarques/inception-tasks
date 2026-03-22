@@ -1,0 +1,110 @@
+.time-boxing {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+/* === Unassigned pool === */
+.time-boxing__unassigned {
+  margin-bottom: var(--space-sm);
+}
+
+.time-boxing__unassigned-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: var(--space-xs);
+  padding: 0 var(--space-xs);
+}
+
+/* === Bucket === */
+.time-boxing__bucket {
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-sm);
+  transition: all 0.15s;
+  min-height: 60px;
+}
+
+.time-boxing__bucket--over {
+  border-color: var(--accent);
+  background: var(--accent-light);
+}
+
+.time-boxing__bucket-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-sm);
+  padding: 0 var(--space-xs);
+}
+
+.time-boxing__bucket-icon {
+  font-size: var(--fs-sm);
+  color: var(--accent);
+}
+
+.time-boxing__bucket-label {
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  font-family: var(--font-sans);
+}
+
+.time-boxing__bucket-count {
+  font-size: var(--fs-xs);
+  color: var(--text-faint);
+  margin-left: auto;
+}
+
+.time-boxing__bucket-tasks {
+  display: flex;
+  flex-direction: column;
+}
+
+.time-boxing__bucket-empty {
+  text-align: center;
+  padding: var(--space-md);
+  color: var(--text-faint);
+  font-size: var(--fs-xs);
+}
+
+/* === Remove button === */
+.time-boxing__task-wrapper {
+  position: relative;
+}
+
+.time-boxing__remove-btn {
+  position: absolute;
+  top: 50%;
+  right: -4px;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--fs-xs);
+  color: var(--text-faint);
+  border-radius: 50%;
+  opacity: 0;
+  transition: all 0.15s;
+}
+
+.time-boxing__task-wrapper:hover .time-boxing__remove-btn {
+  opacity: 1;
+}
+
+.time-boxing__remove-btn:hover {
+  color: var(--danger);
+  background: var(--border-light);
+}
+
+@media (hover: none) {
+  .time-boxing__remove-btn {
+    opacity: 1;
+  }
+}

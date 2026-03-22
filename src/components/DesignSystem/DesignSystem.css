@@ -1,0 +1,303 @@
+/* === Design System Page === */
+.ds {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: var(--space-lg) var(--space-md) var(--space-2xl);
+}
+
+.ds__back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  margin-bottom: var(--space-lg);
+  cursor: pointer;
+}
+
+.ds__back-link:hover {
+  color: var(--accent);
+}
+
+.ds__title {
+  font-family: var(--font-mono);
+  font-size: var(--fs-2xl);
+  font-weight: 600;
+  margin-bottom: var(--space-xs);
+}
+
+.ds__subtitle {
+  font-family: var(--font-sans);
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  margin-bottom: var(--space-2xl);
+}
+
+/* Sections */
+.ds__section {
+  margin-bottom: var(--space-2xl);
+  padding-top: var(--space-lg);
+  border-top: 1px solid var(--border-light);
+}
+
+.ds__section:first-of-type {
+  border-top: none;
+  padding-top: 0;
+}
+
+.ds__section-title {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xl);
+  font-weight: 600;
+  margin-bottom: var(--space-xs);
+}
+
+.ds__section-desc {
+  font-family: var(--font-sans);
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  margin-bottom: var(--space-lg);
+}
+
+/* Color swatches */
+.ds__color-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: var(--space-md);
+}
+
+.ds__swatch {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.ds__swatch-color {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+}
+
+.ds__swatch-name {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.ds__swatch-hex {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: var(--text-faint);
+}
+
+/* Typography samples */
+.ds__type-group {
+  margin-bottom: var(--space-lg);
+}
+
+.ds__type-group-label {
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: var(--space-sm);
+}
+
+.ds__type-sample {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-md);
+  padding: var(--space-xs) 0;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.ds__type-sample:last-child {
+  border-bottom: none;
+}
+
+.ds__type-label {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: var(--text-faint);
+  width: 120px;
+  flex-shrink: 0;
+}
+
+/* Spacing blocks */
+.ds__spacing-row {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+}
+
+.ds__spacing-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.ds__spacing-block {
+  background: var(--accent-light);
+  border: 1px solid var(--accent);
+  border-radius: 2px;
+}
+
+.ds__spacing-label {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  text-align: center;
+}
+
+/* Radius demo */
+.ds__radius-row {
+  display: flex;
+  gap: var(--space-lg);
+  margin-top: var(--space-lg);
+}
+
+.ds__radius-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.ds__radius-box {
+  width: 64px;
+  height: 64px;
+  background: var(--bg-elevated);
+  border: 2px solid var(--border);
+}
+
+/* Signifiers */
+.ds__signifier-row {
+  display: flex;
+  gap: var(--space-lg);
+  flex-wrap: wrap;
+}
+
+.ds__signifier-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.ds__signifier-char {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--fs-lg);
+  border-radius: var(--radius);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-light);
+}
+
+.ds__signifier-label {
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
+/* Button groups */
+.ds__button-group {
+  margin-bottom: var(--space-lg);
+}
+
+.ds__button-group-label {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: var(--text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: var(--space-sm);
+}
+
+.ds__button-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+}
+
+/* Inputs */
+.ds__input-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  max-width: 400px;
+}
+
+/* Badge row */
+.ds__badge-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+}
+
+/* Task specimens */
+.ds__task-list {
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius);
+  padding: 0 var(--space-sm);
+}
+
+/* Highlight specimens */
+.ds__highlight-specimens {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+/* Card specimens */
+.ds__card-row {
+  display: flex;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+}
+
+.ds__card {
+  flex: 1;
+  min-width: 200px;
+  padding: var(--space-md);
+}
+
+.ds__card--elevated {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.ds__card--bordered {
+  background: var(--bg);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius);
+}
+
+.ds__card-label {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  margin-bottom: var(--space-xs);
+}
+
+.ds__card-text {
+  font-family: var(--font-sans);
+  font-size: var(--fs-sm);
+  color: var(--text);
+}
+
+/* Mode selector specimen */
+.ds__mode-demo {
+  max-width: 400px;
+}

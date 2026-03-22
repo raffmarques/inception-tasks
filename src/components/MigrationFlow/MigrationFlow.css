@@ -1,0 +1,171 @@
+.migration-flow {
+  max-width: 480px;
+  margin: var(--space-2xl) auto;
+  padding: var(--space-lg);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.migration-flow__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-lg);
+  padding-bottom: var(--space-sm);
+  border-bottom: 1px solid var(--border-light);
+}
+
+.migration-flow__step-label {
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.migration-flow__counter,
+.migration-flow__date {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
+.migration-flow__body {
+  margin-bottom: var(--space-lg);
+}
+
+.migration-flow__prompt {
+  color: var(--text-muted);
+  margin-bottom: var(--space-md);
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.migration-flow__sun {
+  color: var(--accent);
+}
+
+/* Highlight display (reflect step) */
+.migration-flow__highlight-display {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-md);
+  background: var(--bg-highlight);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius);
+  margin-bottom: var(--space-lg);
+  font-size: var(--fs-lg);
+  font-weight: 500;
+}
+
+/* Task display (migrate step) */
+.migration-flow__task-display {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-md);
+  background: var(--bg);
+  border-radius: var(--radius);
+  margin-bottom: var(--space-lg);
+  font-size: var(--fs-lg);
+}
+
+.migration-flow__signifier {
+  font-size: var(--fs-xl);
+  color: var(--text-muted);
+}
+
+/* Reflect buttons */
+.migration-flow__reflect-btns {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.migration-flow__reflect-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-md);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  transition: all 0.15s;
+}
+
+.migration-flow__reflect-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-light);
+}
+
+/* Migrate buttons */
+.migration-flow__migrate-btns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-sm);
+}
+
+.migration-flow__migrate-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  transition: all 0.15s;
+}
+
+.migration-flow__migrate-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-light);
+}
+
+/* Highlight input (highlight step) */
+.migration-flow__highlight-input-row {
+  margin-bottom: var(--space-md);
+}
+
+.migration-flow__highlight-input {
+  width: 100%;
+  font-size: var(--fs-lg);
+  padding: var(--space-sm) var(--space-md);
+}
+
+.migration-flow__highlight-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.migration-flow__primary-btn {
+  padding: var(--space-sm) var(--space-lg);
+  background: var(--accent);
+  color: white;
+  border-radius: var(--radius);
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  transition: opacity 0.15s;
+}
+
+.migration-flow__primary-btn:hover {
+  opacity: 0.9;
+}
+
+.migration-flow__skip {
+  font-size: var(--fs-sm);
+  color: var(--text-faint);
+  padding: var(--space-xs);
+}
+
+.migration-flow__skip:hover {
+  color: var(--text-muted);
+}

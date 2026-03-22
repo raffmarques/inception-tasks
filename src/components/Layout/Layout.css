@@ -1,0 +1,233 @@
+.layout {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+.layout--flow {
+  overflow: hidden;
+}
+
+.layout__header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border-light);
+  padding: var(--space-md);
+  max-width: var(--max-width);
+  width: 100%;
+  margin: 0 auto;
+}
+
+.layout__header--flow {
+  max-width: none;
+}
+
+.layout__top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.layout__top-left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.layout__top-right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.layout__mode-btn {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius);
+  color: var(--text-muted);
+  transition: all 0.15s;
+}
+
+.layout__mode-btn:hover {
+  background: var(--border-light);
+  color: var(--text);
+}
+
+.layout__mode-btn--active {
+  color: var(--accent);
+}
+
+.layout__today-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-xs) var(--space-sm);
+  font-size: var(--fs-sm);
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+}
+
+.layout__today-btn:hover {
+  background: var(--accent-light);
+}
+
+.layout__sync {
+  display: flex;
+  align-items: center;
+  cursor: default;
+}
+
+.layout__sync-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  transition: background 0.3s;
+}
+
+.layout__sync--idle .layout__sync-dot {
+  background: var(--success);
+}
+
+.layout__sync--syncing .layout__sync-dot {
+  background: var(--accent);
+  animation: sync-pulse 1s ease-in-out infinite;
+}
+
+.layout__sync--error .layout__sync-dot {
+  background: var(--danger);
+}
+
+.layout__sync--offline .layout__sync-dot {
+  background: var(--text-faint);
+}
+
+@keyframes sync-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.layout__gcal-btn {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius);
+  color: var(--text-faint);
+  cursor: pointer;
+}
+
+.layout__gcal-btn:hover {
+  background: var(--border-light);
+  color: #4285f4;
+}
+
+.layout__gcal-btn--connected {
+  color: #4285f4;
+}
+
+.layout__gcal-btn--loading {
+  color: var(--text-faint);
+  cursor: default;
+  animation: sync-pulse 1s ease-in-out infinite;
+}
+
+.layout__lists-btn {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius);
+  color: var(--text-muted);
+}
+
+.layout__lists-btn:hover {
+  background: var(--border-light);
+  color: var(--text);
+}
+
+.layout__lists-btn--active {
+  color: var(--accent);
+}
+
+.layout__signout-btn {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius);
+  color: var(--text-muted);
+}
+
+.layout__signout-btn:hover {
+  background: var(--border-light);
+  color: var(--text);
+}
+
+.layout__date-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-top: var(--space-sm);
+}
+
+.layout__nav-btn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius);
+  color: var(--text-muted);
+}
+
+.layout__nav-btn:hover {
+  background: var(--border-light);
+  color: var(--text);
+}
+
+.layout__date-title {
+  flex: 1;
+  font-size: var(--fs-lg);
+  font-weight: 500;
+  text-align: center;
+}
+
+.layout__content {
+  flex: 1;
+  width: 100%;
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: var(--space-md);
+  padding-bottom: var(--space-2xl);
+}
+
+.layout__content--flow {
+  max-width: none;
+  padding: 0;
+  overflow: hidden;
+}
+
+/* Footer */
+.layout__footer {
+  text-align: center;
+  padding: var(--space-md) 0;
+}
+
+.layout__design-link {
+  font-size: var(--fs-xs);
+  color: var(--text-faint);
+  font-family: var(--font-mono);
+}
+
+.layout__design-link:hover {
+  color: var(--accent);
+}

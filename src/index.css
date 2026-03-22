@@ -1,0 +1,124 @@
+/* === Design Tokens === */
+:root {
+  --bg: #faf9f7;
+  --bg-elevated: #ffffff;
+  --bg-highlight: #fffbeb;
+  --border: #e5e2dc;
+  --border-light: #f0ede8;
+  --text: #2c2c2c;
+  --text-muted: #8a8580;
+  --text-faint: #b8b3ad;
+  --accent: #d4740a;
+  --accent-light: #fef3e2;
+  --danger: #c0392b;
+  --success: #27ae60;
+
+  --font-mono: 'IBM Plex Mono', 'Fira Code', 'SF Mono', 'Consolas', monospace;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  --fs-xs: 0.7rem;
+  --fs-sm: 0.8rem;
+  --fs-base: 0.9rem;
+  --fs-lg: 1.05rem;
+  --fs-xl: 1.3rem;
+  --fs-2xl: 1.7rem;
+
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+
+  --radius: 4px;
+  --radius-lg: 8px;
+
+  --max-width: 600px;
+}
+
+/* === Reset === */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  font-family: var(--font-mono);
+  font-size: var(--fs-base);
+  color: var(--text);
+  background: var(--bg);
+  line-height: 1.6;
+  min-height: 100dvh;
+}
+
+#root {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* === Base elements === */
+button {
+  font-family: var(--font-mono);
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-size: inherit;
+  color: inherit;
+}
+
+input, textarea {
+  font-family: var(--font-mono);
+  font-size: var(--fs-base);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--space-sm) var(--space-md);
+  background: var(--bg-elevated);
+  width: 100%;
+  outline: none;
+}
+
+input:focus, textarea:focus {
+  border-color: var(--accent);
+}
+
+input::placeholder, textarea::placeholder {
+  color: var(--text-faint);
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+/* === Scrollbar === */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* === Global Footer === */
+footer {
+  padding: var(--space-xl) var(--space-md);
+  text-align: center;
+  border-top: 1px solid var(--border-light);
+  margin-top: auto; /* Ensures footer stays at the bottom of the flex container */
+}
+
+footer a {
+  font-size: var(--fs-xs);
+  color: var(--text-faint);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+footer a:hover {
+  color: var(--accent);
+  text-decoration: underline;
+}

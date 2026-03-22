@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head><title>Connecting...</title></head>
+<body>
+<p>Connected! This window will close automatically.</p>
+<script>
+  // This page exists so the OAuth redirect lands on our origin,
+  // letting the parent window read the URL with the auth code.
+  // The parent popup-poller will close this window.
+  // If the parent didn't catch it, auto-close after a short delay.
+  setTimeout(() => window.close(), 3000);
+</script>
+</body>
+</html>

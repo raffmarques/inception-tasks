@@ -1,0 +1,27 @@
+.zoom-nav {
+  display: flex;
+  gap: var(--space-xs);
+  padding: var(--space-xs);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.zoom-nav__btn {
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius);
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  transition: all 0.15s;
+}
+
+.zoom-nav__btn:hover {
+  color: var(--text);
+  background: var(--bg);
+}
+
+.zoom-nav__btn--active {
+  color: var(--text);
+  background: var(--bg);
+  font-weight: 500;
+}
