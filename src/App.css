@@ -14,6 +14,20 @@
   padding-bottom: var(--space-2xl);
 }
 
+.migration-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(26, 22, 18, 0.55);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 300;
+  padding: var(--space-md);
+  animation: backdrop-in 0.2s ease;
+}
+@keyframes backdrop-in { from{opacity:0} to{opacity:1} }
+
 .placeholder-view {
   display: flex;
   align-items: center;

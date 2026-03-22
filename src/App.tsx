@@ -200,21 +200,19 @@ function App() {
     const yesterdayHighlight = getHighlight('day', yesterdayKey);
 
     return (
-      <div className="app">
-        <main className="app-main">
-          <MigrationFlow
-            yesterdayDate={yesterdayKey}
-            todayDate={todayKey}
-            openTasks={openTasks}
-            yesterdayHighlight={yesterdayHighlight}
-            onMigrateTask={(taskId) => migrateTask(yesterdayKey, taskId, todayKey)}
-            onCompleteTask={(taskId) => updateTask(yesterdayKey, taskId, { status: 'completed' })}
-            onCancelTask={(taskId) => updateTask(yesterdayKey, taskId, { status: 'cancelled' })}
-            onReflect={(rating, note) => setReflection('day', yesterdayKey, rating, note)}
-            onSetTodayHighlight={(content) => setHighlight('day', todayKey, content)}
-            onComplete={handleMigrationComplete}
-          />
-        </main>
+      <div className="migration-overlay">
+        <MigrationFlow
+          yesterdayDate={yesterdayKey}
+          todayDate={todayKey}
+          openTasks={openTasks}
+          yesterdayHighlight={yesterdayHighlight}
+          onMigrateTask={(taskId) => migrateTask(yesterdayKey, taskId, todayKey)}
+          onCompleteTask={(taskId) => updateTask(yesterdayKey, taskId, { status: 'completed' })}
+          onCancelTask={(taskId) => updateTask(yesterdayKey, taskId, { status: 'cancelled' })}
+          onReflect={(rating, note) => setReflection('day', yesterdayKey, rating, note)}
+          onSetTodayHighlight={(content) => setHighlight('day', todayKey, content)}
+          onComplete={handleMigrationComplete}
+        />
       </div>
     );
   }
