@@ -129,7 +129,10 @@ export function Highlight({ highlight, onSet, onClear, availableTasks = [], drop
   // Display state — highlight is set
   return (
     <div ref={setNodeRef} className={`highlight highlight--set${isOver ? ' highlight--drop-active' : ''}`}>
-      <FontAwesomeIcon icon={faSun} className="highlight__icon" />
+      <div className="highlight__label">
+        <FontAwesomeIcon icon={faSun} className="highlight__icon" />
+        today's highlight
+      </div>
       <span className="highlight__content">{highlight!.content}</span>
       <div className="highlight__set-actions">
         <button className="highlight__edit-btn" onClick={openEditor} title="Edit highlight">
