@@ -1,27 +1,46 @@
 /* === Design Tokens === */
 :root {
-  --bg: #faf9f7;
-  --bg-elevated: #ffffff;
-  --bg-highlight: #fffbeb;
-  --border: #e5e2dc;
-  --border-light: #f0ede8;
-  --text: #2c2c2c;
-  --text-muted: #8a8580;
-  --text-faint: #b8b3ad;
-  --accent: #d4740a;
-  --accent-light: #fef3e2;
-  --danger: #c0392b;
-  --success: #27ae60;
+  /* Palette */
+  --cream:       #F6F1E7;
+  --cream-mid:   #EDE7D6;
+  --cream-dark:  #E0D8C4;
+  --ink:         #1A1612;
+  --ink-mid:     #3A342D;
+  --ink-faint:   #7A6F65;
+  --ink-ghost:   #B8AFA4;
+  --copper:      #B85C28;
+  --copper-light:#D4784A;
+  --copper-pale: #F0DDD0;
+  --sage:        #3D5246;
+  --sage-light:  #6E8B7C;
+  --sage-pale:   #D6E4DE;
 
-  --font-mono: 'IBM Plex Mono', 'Fira Code', 'SF Mono', 'Consolas', monospace;
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  /* Semantic aliases — keep old names so component CSS doesn't break yet */
+  --bg:              var(--cream);
+  --bg-elevated:     var(--cream-mid);
+  --bg-highlight:    var(--copper-pale);
+  --border:          var(--cream-dark);
+  --border-light:    var(--cream-mid);
+  --text:            var(--ink);
+  --text-muted:      var(--ink-faint);
+  --text-faint:      var(--ink-ghost);
+  --accent:          var(--copper);
+  --accent-light:    var(--copper-pale);
+  --danger:          #C0392B;
+  --success:         var(--sage);
 
-  --fs-xs: 0.7rem;
-  --fs-sm: 0.8rem;
-  --fs-base: 0.9rem;
-  --fs-lg: 1.05rem;
-  --fs-xl: 1.3rem;
-  --fs-2xl: 1.7rem;
+  /* Typography */
+  --font-mono:    'JetBrains Mono', 'Courier New', monospace;
+  --font-display: 'Lora', Georgia, serif;
+  --font-sans:    var(--font-mono); /* no longer used separately */
+
+  /* Scale */
+  --fs-xs:   0.65rem;
+  --fs-sm:   0.78rem;
+  --fs-base: 0.88rem;
+  --fs-lg:   1rem;
+  --fs-xl:   1.25rem;
+  --fs-2xl:  1.6rem;
 
   --space-xs: 4px;
   --space-sm: 8px;
@@ -30,8 +49,8 @@
   --space-xl: 32px;
   --space-2xl: 48px;
 
-  --radius: 4px;
-  --radius-lg: 8px;
+  --radius:    3px;
+  --radius-lg: 6px;
 
   --max-width: 600px;
 }
@@ -55,6 +74,18 @@ body {
   background: var(--bg);
   line-height: 1.6;
   min-height: 100dvh;
+  -webkit-font-smoothing: antialiased;
+  position: relative;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.35;
 }
 
 #root {
