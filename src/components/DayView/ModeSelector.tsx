@@ -20,7 +20,7 @@ export function ModeSelector({ mode, onChange }: Props) {
       {MODES.map((m) => (
         <button
           key={m.value}
-          className={`mode-selector__tab${mode === m.value ? ' mode-selector__tab--active' : ''}`}
+          className={`mode-selector__btn${mode === m.value ? ' mode-selector__btn--active' : ''}`}
           onClick={() => onChange(m.value)}
         >
           <FontAwesomeIcon icon={m.icon} className="mode-selector__icon" />

@@ -1,40 +1,25 @@
 .mode-selector {
   display: flex;
-  gap: 2px;
-  margin-bottom: var(--space-md);
-  background: var(--border-light);
+  gap: 4px;
+  margin-bottom: var(--space-lg);
+}
+
+.mode-selector__btn {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 5px 12px;
+  border: 1px solid var(--cream-dark);
   border-radius: var(--radius);
-  padding: 2px;
+  background: none;
+  color: var(--ink-faint);
+  cursor: pointer;
+  transition: all 0.12s;
 }
-
-.mode-selector__tab {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-xs);
-  padding: var(--space-xs) var(--space-sm);
-  border-radius: var(--radius);
-  font-size: var(--fs-xs);
-  color: var(--text-muted);
-  transition: all 0.15s;
-  white-space: nowrap;
-}
-
-.mode-selector__tab:hover {
-  color: var(--text);
-}
-
-.mode-selector__tab--active {
-  background: var(--bg-elevated);
-  color: var(--accent);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
-}
-
-.mode-selector__icon {
-  font-size: var(--fs-xs);
-}
-
-.mode-selector__label {
-  font-family: var(--font-sans);
+.mode-selector__btn:hover { color: var(--ink); border-color: var(--ink-faint); }
+.mode-selector__btn--active {
+  background: var(--cream-mid);
+  color: var(--ink);
+  border-color: var(--ink-mid);
 }

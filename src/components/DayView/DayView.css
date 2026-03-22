@@ -3,55 +3,48 @@
   flex-direction: column;
 }
 
-/* === Add task === */
+/* Add task — inline row at bottom of list */
 .day-view__add-task {
-  display: flex;
-  gap: var(--space-sm);
-  margin-bottom: var(--space-lg);
+  display: grid;
+  grid-template-columns: 44px 1fr;
+  align-items: center;
+  min-height: 48px;
+  opacity: 0.5;
+  transition: opacity 0.15s;
+  border-bottom: 1px solid var(--cream-dark);
+}
+.day-view__add-task:focus-within { opacity: 1; }
+
+.day-view__add-sig {
+  display: flex; align-items: center; justify-content: center;
+  border-right: 1px solid var(--cream-dark);
+  height: 100%;
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  color: var(--ink-ghost);
 }
 
 .day-view__add-input {
   flex: 1;
+  font-family: var(--font-mono);
+  font-size: var(--fs-base);
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--ink);
+  padding: 0 12px;
+  width: 100%;
 }
+.day-view__add-input::placeholder { color: var(--ink-ghost); }
 
-.day-view__add-btn {
-  width: 38px;
-  height: 38px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  color: var(--text-muted);
-  transition: all 0.15s;
-}
+.day-view__add-btn { display: none; } /* hidden — Enter submits */
 
-.day-view__add-btn:hover:not(:disabled) {
-  border-color: var(--accent);
-  color: var(--accent);
-  background: var(--accent-light);
-}
-
-.day-view__add-btn:disabled {
-  opacity: 0.3;
-  cursor: default;
-}
-
-/* === Task list === */
-.day-view__tasks {
-  display: flex;
-  flex-direction: column;
-}
-
-.day-view__divider {
-  height: 1px;
-  background: var(--border);
-  margin: var(--space-sm) 0;
-}
-
+/* Task list */
+.day-view__tasks { display: flex; flex-direction: column; }
+.day-view__divider { height: 1px; background: var(--cream-dark); margin: 4px 0; }
 .day-view__empty {
   text-align: center;
   padding: var(--space-xl) var(--space-md);
-  color: var(--text-faint);
+  color: var(--ink-ghost);
   font-size: var(--fs-sm);
 }

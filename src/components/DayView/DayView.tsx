@@ -10,8 +10,6 @@ import {
 } from '@dnd-kit/core';
 import type { DragStartEvent, DragEndEvent } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import type { Task, Highlight as HighlightType, DayOrgData, DayOrgMode, TimeBoxBucket } from '../../types';
 import type { DayData } from '../../types';
 import type { CalendarEvent } from '../../hooks/useGoogleCalendar';
@@ -223,6 +221,7 @@ export function DayView({
         )}
 
         <div className="day-view__add-task">
+          <span className="day-view__add-sig">○</span>
           <input
             ref={inputRef}
             className="day-view__add-input"
@@ -231,15 +230,8 @@ export function DayView({
             onKeyDown={(e) => {
               if (e.key === 'Enter') handleAddTask();
             }}
-            placeholder="Add a task..."
+            placeholder="new task..."
           />
-          <button
-            className="day-view__add-btn"
-            onClick={handleAddTask}
-            disabled={!newTaskValue.trim()}
-          >
-            <FontAwesomeIcon icon={faPlus} />
-          </button>
         </div>
 
         <ModeSelector mode={orgData.mode} onChange={onSetMode} />
