@@ -15,6 +15,12 @@ export interface TaskRow {
   day_date: string;
   updated_at: string;
   deleted: boolean;
+  planned_start: string | null;
+  planned_end: string | null;
+  deadline: string | null;
+  description: string | null;
+  category: string | null;
+  time_estimate: number | null;
 }
 
 export interface HighlightRow {
@@ -55,6 +61,12 @@ export function taskToRow(task: Task, dayDate: string, userId: string): TaskRow 
     day_date: dayDate,
     updated_at: task.updatedAt ?? new Date(0).toISOString(),
     deleted: false,
+    planned_start: task.plannedStart ?? null,
+    planned_end: task.plannedEnd ?? null,
+    deadline: task.deadline ?? null,
+    description: task.description ?? null,
+    category: task.category ?? null,
+    time_estimate: task.timeEstimate ?? null,
   };
 }
 
@@ -90,7 +102,7 @@ export function dayToRow(day: DayData, userId: string): DayRow {
 
 // === Supabase → Local ===
 
-export function rowToTask(row: TaskRow): Task {
+function rowToTask(row: TaskRow): Task {
   return {
     id: row.id,
     content: row.content,
@@ -101,10 +113,16 @@ export function rowToTask(row: TaskRow): Task {
     parentId: row.parent_id ?? undefined,
     order: row.order,
     updatedAt: row.updated_at,
+    plannedStart: row.planned_start ?? undefined,
+    plannedEnd: row.planned_end ?? undefined,
+    deadline: row.deadline ?? undefined,
+    description: row.description ?? undefined,
+    category: row.category ?? undefined,
+    timeEstimate: row.time_estimate ?? undefined,
   };
 }
 
-export function rowToHighlight(row: HighlightRow): { key: string; highlight: Highlight } {
+function rowToHighlight(row: HighlightRow): { key: string; highlight: Highlight } {
   return {
     key: row.key,
     highlight: {

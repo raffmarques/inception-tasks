@@ -11,10 +11,11 @@ import {
   faPaperclip,
   faXmark,
 } from '@fortawesome/free-solid-svg-icons';
-import { format, parseISO, isBefore, isToday as isDateToday } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import { v4 as uuidv4 } from 'uuid';
 import type { Task, SubTask, Attachment } from '../../types';
 import { SIGNIFIERS } from '../../types';
+import { formatDateBadgeLong, deadlineUrgency } from '../../utils/taskUtils';
 import { formatTime, parseTimeInput } from '../../utils/time';
 import { DateRangePopover } from '../TaskItem/DateRangePopover';
 import './TaskDetail.css';
@@ -36,24 +37,6 @@ function formatFileSize(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-function deadlineUrgency(deadline: string): 'overdue' | 'today' | 'future' {
-  const d = parseISO(deadline);
-  const now = new Date();
-  now.setHours(0, 0, 0, 0);
-  if (isDateToday(d)) return 'today';
-  if (isBefore(d, now)) return 'overdue';
-  return 'future';
-}
-
-function formatDateBadge(start: string, end?: string): string {
-  const s = parseISO(start);
-  if (!end || end === start) return format(s, 'MMM d, yyyy');
-  const e = parseISO(end);
-  if (s.getFullYear() === e.getFullYear() && s.getMonth() === e.getMonth()) {
-    return `${format(s, 'MMM d')}–${format(e, 'd, yyyy')}`;
-  }
-  return `${format(s, 'MMM d')}–${format(e, 'MMM d, yyyy')}`;
-}
 
 export function TaskDetail({ task, allCategories, onUpdate, onClose, onCycleStatus, onDelete }: Props) {
   const [editingTitle, setEditingTitle] = useState(false);
@@ -178,10 +161,7 @@ export function TaskDetail({ task, allCategories, onUpdate, onClose, onCycleStat
           <div className="task-detail__header-actions">
             <button
               className="task-detail__header-btn task-detail__header-btn--delete"
-              onClick={() => {
-                onDelete();
-                onClose();
-              }}
+              onClick={onDelete}
             >
               <FontAwesomeIcon icon={faTrash} />
             </button>
@@ -237,7 +217,7 @@ export function TaskDetail({ task, allCategories, onUpdate, onClose, onCycleStat
             >
               <FontAwesomeIcon icon={faCalendarDays} />
               {task.plannedStart ? (
-                <span>{formatDateBadge(task.plannedStart, task.plannedEnd)}</span>
+                <span>{formatDateBadgeLong(task.plannedStart, task.plannedEnd)}</span>
               ) : (
                 <span className="task-detail__date-placeholder">Planned date</span>
               )}

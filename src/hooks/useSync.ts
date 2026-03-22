@@ -25,7 +25,6 @@ interface UseSyncOptions {
 
 export function useSync({ session, days, setDays, highlights, setHighlights }: UseSyncOptions) {
   const [syncStatus, setSyncStatus] = useState<SyncStatus>('idle');
-  const [lastSynced, setLastSynced] = useState<Date | null>(null);
   const syncReady = useRef(false);
   const pushTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastPushedTaskIds = useRef<Set<string>>(new Set());
@@ -182,7 +181,6 @@ export function useSync({ session, days, setDays, highlights, setHighlights }: U
       syncReady.current = true;
       await push();
       setSyncStatus('idle');
-      setLastSynced(new Date());
     } catch (err) {
       console.error('[sync] error:', err);
       setSyncStatus(navigator.onLine ? 'error' : 'offline');
@@ -212,7 +210,6 @@ export function useSync({ session, days, setDays, highlights, setHighlights }: U
       try {
         await push();
         setSyncStatus('idle');
-        setLastSynced(new Date());
       } catch (err) {
         console.error('[sync] push error:', err);
         setSyncStatus(navigator.onLine ? 'error' : 'offline');
@@ -244,5 +241,5 @@ export function useSync({ session, days, setDays, highlights, setHighlights }: U
     };
   }, [session, sync]);
 
-  return { syncStatus, lastSynced };
+  return { syncStatus };
 }

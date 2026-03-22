@@ -28,9 +28,7 @@ interface Props {
   onClose: () => void;
   onAddList: (name: string) => void;
   onRemoveList: (listId: string) => void;
-  onRenameList: (listId: string, name: string) => void;
   onAddItem: (listId: string, content: string) => void;
-  onRemoveItem: (listId: string, itemId: string) => void;
 }
 
 export function ListsPanel({

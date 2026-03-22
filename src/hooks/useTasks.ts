@@ -30,22 +30,22 @@ export function useTasks() {
   const addTask = useCallback(
     (date: string, content: string): Task => {
       const now = new Date().toISOString();
-      const task: Task = {
-        id: uuid(),
-        content,
-        status: 'open',
-        createdDate: date,
-        order: (days[date]?.tasks.length ?? 0),
-        updatedAt: now,
-      };
-      updateDay(date, (day) => ({
-        ...day,
-        updatedAt: now,
-        tasks: [...day.tasks, task],
-      }));
-      return task;
+      const id = uuid();
+      updateDay(date, (day) => {
+        const task: Task = {
+          id,
+          content,
+          status: 'open',
+          createdDate: date,
+          order: day.tasks.length,
+          updatedAt: now,
+        };
+        return { ...day, updatedAt: now, tasks: [...day.tasks, task] };
+      });
+      // Return a placeholder — callers that need the task should use the day state
+      return { id, content, status: 'open', createdDate: date, order: 0, updatedAt: now };
     },
-    [days, updateDay],
+    [updateDay],
   );
 
   const updateTask = useCallback(
@@ -85,51 +85,23 @@ export function useTasks() {
       const task = sourceDay.tasks.find((t) => t.id === taskId);
       if (!task) return;
 
-      // Mark as migrated in source
       updateTask(fromDate, taskId, { status: 'migrated', migratedTo: toDate });
 
-      // Add to target day
-      const newTask: Task = {
-        ...task,
-        id: uuid(),
-        status: 'open',
-        createdDate: fromDate,
-        scheduledDate: toDate,
-        migratedTo: undefined,
-        order: (days[toDate]?.tasks.length ?? 0),
-        updatedAt: now,
-      };
+      const newId = uuid();
+      const baseTask = { ...task };
       updateDay(toDate, (day) => ({
         ...day,
         updatedAt: now,
-        tasks: [...day.tasks, newTask],
-      }));
-    },
-    [days, updateDay, updateTask],
-  );
-
-  const scheduleTask = useCallback(
-    (fromDate: string, taskId: string, toDate: string) => {
-      const now = new Date().toISOString();
-      const sourceDay = days[fromDate] ?? emptyDay(fromDate);
-      const task = sourceDay.tasks.find((t) => t.id === taskId);
-      if (!task) return;
-
-      updateTask(fromDate, taskId, { status: 'scheduled', scheduledDate: toDate });
-
-      const newTask: Task = {
-        ...task,
-        id: uuid(),
-        status: 'open',
-        createdDate: fromDate,
-        scheduledDate: toDate,
-        order: (days[toDate]?.tasks.length ?? 0),
-        updatedAt: now,
-      };
-      updateDay(toDate, (day) => ({
-        ...day,
-        updatedAt: now,
-        tasks: [...day.tasks, newTask],
+        tasks: [...day.tasks, {
+          ...baseTask,
+          id: newId,
+          status: 'open' as const,
+          createdDate: fromDate,
+          scheduledDate: toDate,
+          migratedTo: undefined,
+          order: day.tasks.length,
+          updatedAt: now,
+        }],
       }));
     },
     [days, updateDay, updateTask],
@@ -218,7 +190,6 @@ export function useTasks() {
     updateTask,
     cycleTaskStatus,
     migrateTask,
-    scheduleTask,
     deleteTask,
     setMigrationComplete,
     getOpenTasksForDate,

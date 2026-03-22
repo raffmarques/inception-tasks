@@ -23,7 +23,6 @@ interface Props {
   onMigrateTask: (taskId: string) => void;
   onCompleteTask: (taskId: string) => void;
   onCancelTask: (taskId: string) => void;
-  onScheduleTask: (taskId: string, date: string) => void;
   onReflect: (rating: ReflectionRating, note?: string) => void;
   onSetTodayHighlight: (content: string, taskId?: string) => void;
   onComplete: () => void;

@@ -1,4 +1,6 @@
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useState, useMemo } from 'react';
+import { DndContext, useDroppable, PointerSensor, TouchSensor, useSensor, useSensors } from '@dnd-kit/core';
+import type { DragEndEvent } from '@dnd-kit/core';
 import type { ZoomLevel, DayData, Highlight, Task } from '../../types';
 import { SIGNIFIERS } from '../../types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -41,6 +43,7 @@ import {
   isSameQuarter,
   isSameYear,
 } from 'date-fns';
+import { PeriodPeekSidebar } from './PeriodPeekSidebar';
 import './FlowView.css';
 
 interface Props {
@@ -50,6 +53,8 @@ interface Props {
   highlights: Record<string, Highlight>;
   onAddTask: (date: string, content: string) => void;
   onCycleStatus: (date: string, taskId: string) => void;
+  onTaskClick: (date: string, taskId: string) => void;
+  onMoveTask: (fromKey: string, taskId: string, toKey: string) => void;
   onDayClick: (date: string) => void;
   onZoomUp: (zoom: ZoomLevel) => void;
 }
@@ -152,25 +157,43 @@ function getColumns(currentDate: string, zoom: ZoomLevel): ColumnData[] {
   return columns;
 }
 
-function getZoomUpLabel(zoom: ZoomLevel): string | null {
-  switch (zoom) {
-    case 'day': return 'WEEK';
-    case 'week': return 'MONTH';
-    case 'month': return 'QUARTER';
-    case 'quarter': return 'YEAR';
-    default: return null;
-  }
+interface PeriodParent {
+  key: string;
+  label: string;
+  highlightKey: string;
 }
 
-function getZoomUpLevel(zoom: ZoomLevel): ZoomLevel | null {
-  switch (zoom) {
-    case 'day': return 'week';
-    case 'week': return 'month';
-    case 'month': return 'quarter';
-    case 'quarter': return 'year';
-    default: return null;
+function getPeriodParent(currentDate: string, zoom: ZoomLevel): PeriodParent | null {
+  const d = fromDateKey(currentDate);
+  if (zoom === 'day') {
+    const ws = startOfWeek(d, { weekStartsOn: 1 });
+    const key = toWeekKey(ws);
+    return { key, label: `W${getISOWeek(d)}`, highlightKey: `week-${key}` };
   }
+  if (zoom === 'week') {
+    const ms = startOfMonth(d);
+    const key = toMonthKey(ms);
+    return { key, label: format(ms, 'MMMM'), highlightKey: `month-${key}` };
+  }
+  if (zoom === 'month') {
+    const qs = startOfQuarter(d);
+    const key = toQuarterKey(qs);
+    return { key, label: `Q${getQuarter(d)}`, highlightKey: `quarter-${key}` };
+  }
+  if (zoom === 'quarter') {
+    const ys = startOfYear(d);
+    const key = toYearKey(ys);
+    return { key, label: format(ys, 'yyyy'), highlightKey: `year-${key}` };
+  }
+  return null;
 }
+
+const ZOOM_UP: Partial<Record<ZoomLevel, { label: string; level: ZoomLevel }>> = {
+  day:     { label: 'WEEK',    level: 'week' },
+  week:    { label: 'MONTH',   level: 'month' },
+  month:   { label: 'QUARTER', level: 'quarter' },
+  quarter: { label: 'YEAR',    level: 'year' },
+};
 
 export function FlowView({
   currentDate,
@@ -179,13 +202,30 @@ export function FlowView({
   highlights,
   onAddTask,
   onCycleStatus,
+  onTaskClick,
+  onMoveTask,
   onDayClick,
   onZoomUp,
 }: Props) {
   const scrollRef = useRef<HTMLDivElement>(null);
-  const columns = getColumns(currentDate, currentZoom);
-  const zoomUpLabel = getZoomUpLabel(currentZoom);
-  const zoomUpLevel = getZoomUpLevel(currentZoom);
+  const columns = useMemo(() => getColumns(currentDate, currentZoom), [currentDate, currentZoom]);
+  const zoomUp = ZOOM_UP[currentZoom];
+  const periodParent = useMemo(() => getPeriodParent(currentDate, currentZoom), [currentDate, currentZoom]);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 5 } }),
+  );
+
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+    if (!over) return;
+    const data = active.data.current;
+    if (data?.type !== 'period-task') return;
+    const targetKey = over.data.current?.dayKey as string | undefined;
+    if (!targetKey || targetKey === data.periodKey) return;
+    onMoveTask(data.periodKey, data.taskId, targetKey);
+  }
 
   // Scroll to center column on mount / when date changes
   useEffect(() => {
@@ -198,85 +238,137 @@ export function FlowView({
     }
   }, [currentDate, currentZoom]);
 
+  const periodTasks = periodParent ? (days[periodParent.key]?.tasks ?? []) : [];
+  const periodHighlight = periodParent ? highlights[periodParent.highlightKey] : undefined;
+
   return (
-    <div className="flow-view">
-      <div className="flow-view__scroll" ref={scrollRef}>
-        {columns.map((col) => {
-          // Gather all tasks for this column
-          const allTasks: { task: Task; dayDate: string }[] = [];
-          for (const dk of col.dateKeys) {
-            const day = days[dk];
-            if (day) {
-              for (const task of day.tasks) {
-                allTasks.push({ task, dayDate: dk });
+    <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
+      <div className="flow-view">
+        <div className="flow-view__scroll" ref={scrollRef}>
+          {columns.map((col) => {
+            // Gather all tasks for this column
+            const allTasks: { task: Task; dayDate: string }[] = [];
+            for (const dk of col.dateKeys) {
+              const day = days[dk];
+              if (day) {
+                for (const task of day.tasks) {
+                  allTasks.push({ task, dayDate: dk });
+                }
               }
             }
-          }
 
-          const highlight = col.highlightKey ? highlights[col.highlightKey] : undefined;
+            const highlight = col.highlightKey ? highlights[col.highlightKey] : undefined;
 
-          return (
-            <div
-              key={col.key}
-              className={`flow-view__col ${col.isCurrent ? 'flow-view__col--current' : ''}`}
+            return (
+              <DroppableColumn
+                key={col.key}
+                col={col}
+                allTasks={allTasks}
+                highlight={highlight}
+                onDayClick={onDayClick}
+                onCycleStatus={onCycleStatus}
+                onTaskClick={onTaskClick}
+                onAddTask={onAddTask}
+              />
+            );
+          })}
+
+          {/* Zoom-up edge label */}
+          {zoomUp && (
+            <button
+              className="flow-view__zoom-label"
+              onClick={() => onZoomUp(zoomUp.level)}
+              title={`Switch to ${zoomUp.label.toLowerCase()} view`}
             >
-              <div
-                className="flow-view__col-header"
-                onClick={() => {
-                  // Click header to navigate to that period in focus mode
-                  if (col.dateKeys.length > 0) {
-                    onDayClick(col.dateKeys[0]);
-                  }
-                }}
-              >
-                <div className={`flow-view__col-title ${col.isCurrent ? 'flow-view__col-title--current' : ''}`}>
-                  {col.title}
-                </div>
-                <div className={`flow-view__col-subtitle ${col.isCurrent ? 'flow-view__col-subtitle--current' : ''}`}>
-                  {col.subtitle}
-                </div>
-              </div>
+              <span>{zoomUp.label}</span>
+            </button>
+          )}
+        </div>
 
-              <div className="flow-view__col-body">
-                {highlight && (
-                  <div className="flow-view__highlight-item">
-                    <FontAwesomeIcon icon={faSun} className="flow-view__highlight-icon" />
-                    <span>{highlight.content}</span>
-                  </div>
-                )}
-
-                {allTasks.map(({ task, dayDate }) => (
-                  <div
-                    key={task.id}
-                    className={`flow-view__task flow-view__task--${task.status}`}
-                    onClick={() => onCycleStatus(dayDate, task.id)}
-                  >
-                    <span className="flow-view__signifier">{SIGNIFIERS[task.status]}</span>
-                    <span className="flow-view__task-content">{task.content}</span>
-                  </div>
-                ))}
-
-                <FlowAddTask onAdd={(content) => {
-                  // Add to first day in the column
-                  if (col.dateKeys.length > 0) {
-                    onAddTask(col.dateKeys[0], content);
-                  }
-                }} />
-              </div>
-            </div>
-          );
-        })}
-
-        {/* Zoom-up edge label */}
-        {zoomUpLabel && zoomUpLevel && (
-          <button
-            className="flow-view__zoom-label"
-            onClick={() => onZoomUp(zoomUpLevel)}
-            title={`Switch to ${zoomUpLabel.toLowerCase()} view`}
-          >
-            <span>{zoomUpLabel}</span>
-          </button>
+        {periodParent && (
+          <PeriodPeekSidebar
+            periodKey={periodParent.key}
+            periodLabel={periodParent.label}
+            tasks={periodTasks}
+            highlight={periodHighlight}
+            onAddTask={(content) => onAddTask(periodParent.key, content)}
+            onCycleStatus={(taskId) => onCycleStatus(periodParent.key, taskId)}
+            onTaskClick={(taskId) => onTaskClick(periodParent.key, taskId)}
+          />
         )}
+      </div>
+    </DndContext>
+  );
+}
+
+function DroppableColumn({
+  col,
+  allTasks,
+  highlight,
+  onDayClick,
+  onCycleStatus,
+  onTaskClick,
+  onAddTask,
+}: {
+  col: ColumnData;
+  allTasks: { task: Task; dayDate: string }[];
+  highlight: Highlight | undefined;
+  onDayClick: (date: string) => void;
+  onCycleStatus: (date: string, taskId: string) => void;
+  onTaskClick: (date: string, taskId: string) => void;
+  onAddTask: (date: string, content: string) => void;
+}) {
+  const { setNodeRef, isOver } = useDroppable({
+    id: `col-${col.key}`,
+    data: { dayKey: col.dateKeys[0] ?? col.key },
+  });
+
+  return (
+    <div
+      ref={setNodeRef}
+      className={`flow-view__col ${col.isCurrent ? 'flow-view__col--current' : ''} ${isOver ? 'flow-view__col--drop-over' : ''}`}
+    >
+      <div
+        className="flow-view__col-header"
+        onClick={() => {
+          if (col.dateKeys.length > 0) onDayClick(col.dateKeys[0]);
+        }}
+      >
+        <div className={`flow-view__col-title ${col.isCurrent ? 'flow-view__col-title--current' : ''}`}>
+          {col.title}
+        </div>
+        <div className={`flow-view__col-subtitle ${col.isCurrent ? 'flow-view__col-subtitle--current' : ''}`}>
+          {col.subtitle}
+        </div>
+      </div>
+
+      <div className="flow-view__col-body">
+        {highlight && (
+          <div className="flow-view__highlight-item">
+            <FontAwesomeIcon icon={faSun} className="flow-view__highlight-icon" />
+            <span>{highlight.content}</span>
+          </div>
+        )}
+
+        {allTasks.map(({ task, dayDate }) => (
+          <div
+            key={task.id}
+            className={`flow-view__task flow-view__task--${task.status}`}
+          >
+            <span
+              className="flow-view__signifier"
+              onClick={() => onCycleStatus(dayDate, task.id)}
+            >{SIGNIFIERS[task.status]}</span>
+            <span
+              className="flow-view__task-content"
+              onClick={() => onTaskClick(dayDate, task.id)}
+            >{task.content}</span>
+          </div>
+        ))}
+
+        <FlowAddTask onAdd={(content) => {
+          if (col.dateKeys.length > 0) onAddTask(col.dateKeys[0], content);
+        }} />
       </div>
     </div>
   );

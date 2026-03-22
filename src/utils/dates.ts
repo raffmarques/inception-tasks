@@ -10,7 +10,6 @@ import {
   endOfYear,
   eachDayOfInterval,
   isToday,
-  isSameDay,
   parseISO,
   getISOWeek,
   getQuarter,
@@ -48,16 +47,6 @@ export const getMonthDays = (dateKey: string): string[] => {
   return eachDayOfInterval({ start, end }).map(toDateKey);
 };
 
-export const getQuarterRange = (dateKey: string) => {
-  const date = fromDateKey(dateKey);
-  return {
-    start: toDateKey(startOfQuarter(date)),
-    end: toDateKey(endOfQuarter(date)),
-    quarter: getQuarter(date),
-    year: date.getFullYear(),
-  };
-};
-
 export const getQuarterDays = (dateKey: string): string[] => {
   const date = fromDateKey(dateKey);
   const start = startOfQuarter(date);
@@ -75,11 +64,6 @@ export const getYearDays = (dateKey: string): string[] => {
 export const formatDayHeader = (dateKey: string): string => {
   const date = fromDateKey(dateKey);
   return format(date, 'EEEE, MMM d');
-};
-
-export const formatDayShort = (dateKey: string): string => {
-  const date = fromDateKey(dateKey);
-  return format(date, 'EEE d');
 };
 
 export const formatMonthHeader = (dateKey: string): string => {
@@ -105,8 +89,5 @@ export const formatYearHeader = (dateKey: string): string => {
 };
 
 export const isDayToday = (dateKey: string): boolean => isToday(fromDateKey(dateKey));
-
-export const isSameDate = (a: string, b: string): boolean =>
-  isSameDay(fromDateKey(a), fromDateKey(b));
 
 export { getISOWeek, getQuarter };

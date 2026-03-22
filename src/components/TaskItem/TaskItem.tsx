@@ -1,12 +1,16 @@
 import { useState, useRef, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faSun, faGripVertical, faCalendarDays, faBullseye } from '@fortawesome/free-solid-svg-icons';
-import { format, isBefore, isToday as isDateToday, parseISO } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import type { Task, TaskStatus } from '../../types';
-import type { SyntheticListenerMap } from '@dnd-kit/core/dist/hooks/utilities';
 import { SIGNIFIERS } from '../../types';
+import { formatDateBadge, deadlineUrgency } from '../../utils/taskUtils';
 import { DateRangePopover } from './DateRangePopover';
 import './TaskItem.css';
+
+// Loose type to avoid importing from @dnd-kit internals
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type SyntheticListenerMap = Record<string, Function>;
 
 interface Props {
   task: Task;
@@ -27,26 +31,6 @@ const statusClass: Record<TaskStatus, string> = {
   cancelled: 'task-item--cancelled',
 };
 
-function formatDateBadge(start: string, end?: string): string {
-  const s = parseISO(start);
-  if (!end || end === start) {
-    return format(s, 'MMM d');
-  }
-  const e = parseISO(end);
-  if (s.getMonth() === e.getMonth()) {
-    return `${format(s, 'MMM d')}–${format(e, 'd')}`;
-  }
-  return `${format(s, 'MMM d')}–${format(e, 'MMM d')}`;
-}
-
-function deadlineUrgency(deadline: string): 'overdue' | 'today' | 'future' {
-  const d = parseISO(deadline);
-  const now = new Date();
-  now.setHours(0, 0, 0, 0);
-  if (isDateToday(d)) return 'today';
-  if (isBefore(d, now)) return 'overdue';
-  return 'future';
-}
 
 export function TaskItem({ task, onStatusChange, onUpdate, onDelete, onSetAsHighlight, onTaskClick, dragListeners, isDragging }: Props) {
   const [editing, setEditing] = useState(false);

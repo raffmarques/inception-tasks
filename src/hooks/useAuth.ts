@@ -1,10 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
-import type { Session, User } from '@supabase/supabase-js';
+import type { Session } from '@supabase/supabase-js';
 import { supabase, supabaseConfigured } from '../lib/supabase';
 
 export function useAuth() {
   const [session, setSession] = useState<Session | null>(null);
-  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(supabaseConfigured);
 
   useEffect(() => {
@@ -12,14 +11,12 @@ export function useAuth() {
 
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
-      setUser(session?.user ?? null);
       setLoading(false);
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (_event, session) => {
         setSession(session);
-        setUser(session?.user ?? null);
         setLoading(false);
       },
     );
@@ -42,5 +39,5 @@ export function useAuth() {
     if (error) throw error;
   }, []);
 
-  return { session, user, loading, signIn, signUp, signOut, supabaseConfigured };
+  return { session, loading, signIn, signUp, signOut, supabaseConfigured };
 }

@@ -40,6 +40,7 @@ function App() {
 
   const { session, loading: authLoading, signIn, signUp, signOut, supabaseConfigured } = useAuth();
 
+
   const {
     days,
     setDays,
@@ -54,6 +55,7 @@ function App() {
     reorderTask,
     moveTask,
   } = useTasks();
+
 
   const {
     highlights,
@@ -84,7 +86,7 @@ function App() {
   });
 
   // Lists
-  const { lists, addList, removeList, renameList, addItem, removeItem } = useLists();
+  const { lists, addList, removeList, addItem, removeItem } = useLists();
   const [showLists, setShowLists] = useState(false);
   const [draggingListItem, setDraggingListItem] = useState<{
     itemId: string; listId: string; content: string;
@@ -208,7 +210,6 @@ function App() {
             onMigrateTask={(taskId) => migrateTask(yesterdayKey, taskId, todayKey)}
             onCompleteTask={(taskId) => updateTask(yesterdayKey, taskId, { status: 'completed' })}
             onCancelTask={(taskId) => updateTask(yesterdayKey, taskId, { status: 'cancelled' })}
-            onScheduleTask={() => {}}
             onReflect={(rating, note) => setReflection('day', yesterdayKey, rating, note)}
             onSetTodayHighlight={(content) => setHighlight('day', todayKey, content)}
             onComplete={handleMigrationComplete}
@@ -254,6 +255,8 @@ function App() {
           highlights={highlights}
           onAddTask={(date, content) => addTask(date, content)}
           onCycleStatus={(date, taskId) => cycleTaskStatus(date, taskId)}
+          onTaskClick={(date, taskId) => setSelectedTask({ date, taskId })}
+          onMoveTask={(fromKey, taskId, toKey) => moveTask(fromKey, taskId, toKey)}
           onDayClick={(date) => {
             setCurrentDate(date);
             setViewMode('focus');
@@ -377,9 +380,7 @@ function App() {
       onClose={() => setShowLists(false)}
       onAddList={addList}
       onRemoveList={removeList}
-      onRenameList={renameList}
       onAddItem={addItem}
-      onRemoveItem={removeItem}
     />
 
     <DragOverlay>

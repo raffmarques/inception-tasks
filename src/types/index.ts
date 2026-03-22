@@ -56,16 +56,8 @@ export interface Highlight {
 export interface DayData {
   date: string;              // YYYY-MM-DD
   tasks: Task[];
-  highlight?: Highlight;
   migrationComplete: boolean;
   updatedAt?: string;        // ISO timestamp for sync
-}
-
-export interface AppState {
-  days: Record<string, DayData>;
-  highlights: Record<string, Highlight>;  // keyed by `${level}-${date}`
-  currentDate: string;
-  currentZoom: ZoomLevel;
 }
 
 // === Day Organization Modes ===
