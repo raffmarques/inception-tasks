@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTrash, faSun, faGripVertical, faCalendarDays, faBullseye } from '@fortawesome/free-solid-svg-icons';
+import { faTrash, faSun, faGripLines, faCalendarDays, faBullseye } from '@fortawesome/free-solid-svg-icons';
 import { format, parseISO } from 'date-fns';
 import type { Task, TaskStatus } from '../../types';
 import { SIGNIFIERS } from '../../types';
@@ -63,25 +63,16 @@ export function TaskItem({ task, onStatusChange, onUpdate, onDelete, onSetAsHigh
 
   return (
     <div className={`task-item ${statusClass[task.status]}${isDragging ? ' task-item--dragging' : ''}`}>
-      {dragListeners && (
-        <button
-          className="task-item__drag-handle"
-          {...dragListeners}
-          title="Drag to reorder or drop on highlight"
-        >
-          <FontAwesomeIcon icon={faGripVertical} />
-        </button>
-      )}
-
-      <button
-        className="task-item__signifier"
+      {/* Col 1: 44px signifier cell */}
+      <div
+        className="task-item__signifier-cell"
         onClick={interactable ? onStatusChange : undefined}
         title={`Status: ${task.status}`}
-        disabled={!interactable}
       >
-        {SIGNIFIERS[task.status]}
-      </button>
+        <span className="task-item__signifier">{SIGNIFIERS[task.status]}</span>
+      </div>
 
+      {/* Col 2: body */}
       <div className="task-item__body">
         {editing ? (
           <input
@@ -147,7 +138,13 @@ export function TaskItem({ task, onStatusChange, onUpdate, onDelete, onSetAsHigh
         )}
       </div>
 
+      {/* Col 3: actions (drag handle first, then action buttons) */}
       <div className="task-item__actions">
+        {dragListeners && (
+          <div className="task-item__drag-handle" {...dragListeners}>
+            <FontAwesomeIcon icon={faGripLines} />
+          </div>
+        )}
         {interactable && (
           <>
             <div className="task-item__action-wrapper">

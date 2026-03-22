@@ -323,8 +323,13 @@ export function DayView({
       <DragOverlay>
         {activeTask ? (
           <div className="task-item task-item--overlay">
-            <span className="task-item__signifier">{SIGNIFIERS[activeTask.status]}</span>
-            <span className="task-item__content">{activeTask.content}</span>
+            <div className="task-item__signifier-cell">
+              <span className="task-item__signifier">{SIGNIFIERS[activeTask.status]}</span>
+            </div>
+            <div className="task-item__body">
+              <span className="task-item__content">{activeTask.content}</span>
+            </div>
+            <div className="task-item__actions" />
           </div>
         ) : null}
       </DragOverlay>
