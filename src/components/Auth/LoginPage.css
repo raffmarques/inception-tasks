@@ -11,10 +11,15 @@
   width: 100%;
   max-width: 320px;
   text-align: center;
+  border: 1px solid var(--ink);
+  box-shadow: 4px 4px 0 var(--ink);
+  padding: var(--space-xl);
+  background: var(--cream);
 }
 
 .login__title {
-  font-family: var(--font-mono);
+  font-family: var(--font-display);
+  font-style: italic;
   font-size: var(--fs-2xl);
   font-weight: 600;
   color: var(--text);
@@ -35,6 +40,12 @@
 
 .login__input {
   text-align: center;
+  background: var(--cream-mid);
+  border: 1px solid var(--cream-dark);
+}
+
+.login__input:focus {
+  border-color: var(--copper);
 }
 
 .login__error {

@@ -17,7 +17,7 @@
   width: 280px;
   max-width: 90vw;
   background: var(--bg);
-  border-left: 1px solid var(--border);
+  border-left: 2px solid var(--ink);
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -87,6 +87,7 @@
   align-items: center;
   gap: var(--space-xs);
   font-size: var(--fs-sm);
+  font-family: var(--font-mono);
   padding: var(--space-xs);
   border: 1px solid var(--border-light);
   border-radius: var(--radius);

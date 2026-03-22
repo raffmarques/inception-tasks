@@ -36,6 +36,7 @@
 }
 
 .placeholder-view__label {
-  color: var(--text-muted);
+  color: var(--ink-ghost);
   font-size: var(--fs-lg);
+  font-family: var(--font-mono);
 }
