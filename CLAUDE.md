@@ -50,7 +50,7 @@ If `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` are not set, the app runs in
 All state lives in custom hooks using `useLocalStorage`:
 - **`useTasks`** — Task CRUD, status cycling, migration, reordering, date moving.
 - **`useHighlights`** — Highlights at day/week/month/year level. Includes reflection rating.
-- **`useNavigation`** — Current date, zoom level, and view mode (focus/flow).
+- **`useNavigation`** — Current date, zoom level, and view mode state.
 - **`useAuth`** — Supabase session, sign in/up/out. Exposes `supabaseConfigured` flag.
 - **`useSync`** — Syncs localStorage ↔ Supabase when session is active.
 - **`useDayOrganization`** — Per-day planning modes: manual, time-effort, time-boxing.
@@ -65,7 +65,7 @@ All state lives in custom hooks using `useLocalStorage`:
 - **DayOrgMode**: `'manual' | 'time-effort' | 'time-boxing'`
 - **BujoList**: `{ id, name, items: ListItem[], createdAt }`
 - **ZoomLevel**: `'day' | 'week' | 'month' | 'quarter' | 'year'`
-- **ViewMode**: `'focus' | 'flow'`
+- **ViewMode**: `'focus' | 'flow'` (ViewMode state exists in useNavigation but is not currently consumed — FlowView was removed)
 
 ### Component Structure
 ```
