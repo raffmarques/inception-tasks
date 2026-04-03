@@ -23,7 +23,7 @@ import { useGoogleCalendar } from './hooks/useGoogleCalendar';
 import { useDayOrganization } from './hooks/useDayOrganization';
 import { useLists } from './hooks/useLists';
 import { useNotifications } from './hooks/useNotifications';
-import { today, yesterday, toWeekKey, toMonthKey, toQuarterKey, fromDateKey, fromWeekKey, formatDayHeader } from './utils/dates';
+import { today, yesterday, toWeekKey, toMonthKey, toQuarterKey, toYearKey, fromDateKey, fromWeekKey, fromMonthKey, formatDayHeader } from './utils/dates';
 
 function App() {
   // Hash-based route for design system
@@ -345,16 +345,27 @@ function App() {
             );
           })()}
 
-          {currentZoom === 'year' && (
-            <YearView
-              currentDate={currentDate}
-              days={days}
-              onDayClick={(date) => {
-                setCurrentDate(date);
-                setZoom('day');
-              }}
-            />
-          )}
+          {currentZoom === 'year' && (() => {
+            const yearKey = toYearKey(fromDateKey(currentDate));
+            return (
+              <YearView
+                currentDate={currentDate}
+                days={days}
+                highlights={highlights}
+                yearHighlight={getHighlight('year', yearKey)}
+                yearKey={yearKey}
+                onSetYearHighlight={(content) => setHighlight('year', yearKey, content)}
+                onClearYearHighlight={() => clearHighlight('year', yearKey)}
+                onAddYearTask={(content) => addTask(yearKey, content)}
+                onCycleYearTaskStatus={(taskId) => cycleTaskStatus(yearKey, taskId)}
+                onTaskClick={(dateKey, taskId) => setSelectedTask({ date: dateKey, taskId })}
+                onMonthClick={(monthKey) => {
+                  setCurrentDate(fromMonthKey(monthKey));
+                  setZoom('month');
+                }}
+              />
+            );
+          })()}
       </>
       {selectedTask && (() => {
         const taskDay = getDay(selectedTask.date);

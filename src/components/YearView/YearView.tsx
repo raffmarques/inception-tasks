@@ -1,129 +1,215 @@
-import { useMemo } from 'react';
-import { isToday, getDaysInMonth } from 'date-fns';
-import { fromDateKey, toDateKey } from '../../utils/dates';
-import type { DayData } from '../../types';
+import { useState } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSun } from '@fortawesome/free-solid-svg-icons';
+import type { DayData, Highlight } from '../../types';
+import { SIGNIFIERS } from '../../types';
+import { fromDateKey, toMonthKey } from '../../utils/dates';
+import { format, addMonths } from 'date-fns';
 import './YearView.css';
 
-const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-const MAX_WEEKS = 6; // A month spans at most 6 calendar weeks
-const TOTAL_COLS = MAX_WEEKS * 7; // 42
+const QUARTER_LABELS = ['Q1', 'Q2', 'Q3', 'Q4'];
 
-/** Returns 0=Mon .. 6=Sun for a given date */
-function mondayBasedDow(date: Date): number {
-  const dow = date.getDay(); // 0=Sun, 1=Mon .. 6=Sat
-  return dow === 0 ? 6 : dow - 1;
+interface MonthGroup {
+  quarterLabel: string;
+  months: { monthKey: string; monthName: string }[];
 }
 
-interface CellData {
-  day: number;
-  col: number;
-  dateKey: string;
-  today: boolean;
-  weekend: boolean;
-  hasTasks: boolean;
+function getYearMonthGroups(year: number): MonthGroup[] {
+  const groups: MonthGroup[] = [];
+  const jan = new Date(year, 0, 1);
+  for (let q = 0; q < 4; q++) {
+    const months = [];
+    for (let m = 0; m < 3; m++) {
+      const date = addMonths(jan, q * 3 + m);
+      months.push({
+        monthKey: format(date, 'yyyy-MM'),
+        monthName: format(date, 'MMMM'),
+      });
+    }
+    groups.push({ quarterLabel: QUARTER_LABELS[q], months });
+  }
+  return groups;
+}
+
+type MonthPosition = 'past' | 'current' | 'future';
+
+function getMonthPosition(monthKey: string): MonthPosition {
+  const current = toMonthKey(new Date());
+  if (monthKey < current) return 'past';
+  if (monthKey === current) return 'current';
+  return 'future';
 }
 
 interface Props {
   currentDate: string;
   days: Record<string, DayData>;
-  onDayClick: (date: string) => void;
+  highlights: Record<string, Highlight>;
+  yearHighlight?: Highlight;
+  yearKey: string;
+  onSetYearHighlight: (content: string) => void;
+  onClearYearHighlight: () => void;
+  onAddYearTask: (content: string) => void;
+  onCycleYearTaskStatus: (taskId: string) => void;
+  onTaskClick: (dateKey: string, taskId: string) => void;
+  onMonthClick: (monthKey: string) => void;
 }
 
-export function YearView({ currentDate, days, onDayClick }: Props) {
+export function YearView({
+  currentDate,
+  days,
+  highlights,
+  yearHighlight,
+  yearKey,
+  onSetYearHighlight,
+  onClearYearHighlight,
+  onAddYearTask,
+  onCycleYearTaskStatus,
+  onTaskClick,
+  onMonthClick,
+}: Props) {
   const year = fromDateKey(currentDate).getFullYear();
+  const monthGroups = getYearMonthGroups(year);
+  const yearTasks = days[yearKey]?.tasks ?? [];
+  const currentMonthKey = toMonthKey(new Date());
 
-  const monthRows = useMemo(() => {
-    return MONTHS.map((name, monthIdx) => {
-      const numDays = getDaysInMonth(new Date(year, monthIdx));
-      const firstDow = mondayBasedDow(new Date(year, monthIdx, 1));
+  const [addingTask, setAddingTask] = useState(false);
+  const [newTaskContent, setNewTaskContent] = useState('');
 
-      const cells: CellData[] = [];
-      for (let d = 1; d <= numDays; d++) {
-        const col = firstDow + (d - 1);
-        const date = new Date(year, monthIdx, d);
-        const dateKey = toDateKey(date);
-
-        cells.push({
-          day: d,
-          col,
-          dateKey,
-          today: isToday(date),
-          weekend: col % 7 >= 5,
-          hasTasks: (days[dateKey]?.tasks?.length ?? 0) > 0,
-        });
-      }
-
-      return { name, cells };
-    });
-  }, [year, days]);
-
-  // Build weekend column set for header highlighting
-  const weekendCols = new Set<number>();
-  for (let c = 0; c < TOTAL_COLS; c++) {
-    if (c % 7 >= 5) weekendCols.add(c);
-  }
+  const handleAddTask = () => {
+    const content = newTaskContent.trim();
+    if (content) { onAddYearTask(content); setNewTaskContent(''); }
+    setAddingTask(false);
+  };
 
   return (
     <div className="year-view">
-      <div className="year-view__scroll">
-        <table className="year-view__table">
-          <thead>
-            <tr>
-              <th className="year-view__corner">{year}</th>
-              {Array.from({ length: TOTAL_COLS }, (_, c) => (
-                <th
-                  key={c}
-                  className={`year-view__weekday ${weekendCols.has(c) ? 'year-view__weekday--weekend' : ''}`}
-                >
-                  {WEEKDAYS[c % 7]}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {monthRows.map((month, mi) => {
-              // Sparse array for the row
-              const row: (CellData | null)[] = new Array(TOTAL_COLS).fill(null);
-              for (const cell of month.cells) {
-                row[cell.col] = cell;
-              }
+      {/* Year highlight */}
+      <div className="year-view__highlight">
+        {yearHighlight ? (
+          <div className="year-view__highlight-set">
+            <FontAwesomeIcon icon={faSun} className="year-view__sun" />
+            <span className="year-view__highlight-text">{yearHighlight.content}</span>
+            <button className="year-view__highlight-clear" onClick={onClearYearHighlight}>clear</button>
+          </div>
+        ) : (
+          <div className="year-view__highlight-empty">
+            <FontAwesomeIcon icon={faSun} className="year-view__sun" />
+            <input
+              className="year-view__highlight-input"
+              placeholder="This year's theme..."
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  const val = (e.target as HTMLInputElement).value.trim();
+                  if (val) { onSetYearHighlight(val); (e.target as HTMLInputElement).value = ''; }
+                }
+              }}
+            />
+          </div>
+        )}
+      </div>
 
-              return (
-                <tr key={mi}>
-                  <td className="year-view__month-label">{month.name}</td>
-                  {row.map((cell, ci) => {
-                    const isWeekend = weekendCols.has(ci);
+      {/* Two-column body */}
+      <div className="year-view__body">
+        {/* Left: months list */}
+        <div className="year-view__list">
+          {monthGroups.map((group) => (
+            <div key={group.quarterLabel} className="year-view__quarter-group">
+              <div className="year-view__quarter-header">{group.quarterLabel}</div>
+              {group.months.map(({ monthKey, monthName }) => {
+                const position = getMonthPosition(monthKey);
+                const isCurrent = monthKey === currentMonthKey;
+                const showStatuses = position === 'past'
+                  ? new Set(['completed', 'migrated', 'cancelled'])
+                  : new Set(['open', 'scheduled']);
+                const monthTasks = (days[monthKey]?.tasks ?? []).filter((t) => showStatuses.has(t.status));
+                const monthNote = highlights[`month-${monthKey}`];
 
-                    if (!cell) {
-                      return (
-                        <td
-                          key={ci}
-                          className={`year-view__cell year-view__cell--empty ${isWeekend ? 'year-view__cell--weekend' : ''}`}
-                        />
-                      );
-                    }
+                return (
+                  <div
+                    key={monthKey}
+                    className={[
+                      'year-view__month-row',
+                      isCurrent ? 'year-view__month-row--current' : '',
+                      position === 'past' ? 'year-view__month-row--past' : '',
+                    ].filter(Boolean).join(' ')}
+                  >
+                    <button
+                      className={`year-view__month-label${isCurrent ? ' year-view__month-label--current' : ''}`}
+                      onClick={() => onMonthClick(monthKey)}
+                    >
+                      {monthName}
+                    </button>
+                    <div className="year-view__month-tasks">
+                      {monthTasks.length === 0 && !monthNote && (
+                        <span className="year-view__month-empty">—</span>
+                      )}
+                      {monthTasks.map((task) => (
+                        <div key={task.id} className="year-view__task-line">
+                          <button
+                            className={`year-view__task-sig year-view__task-sig--${task.status}`}
+                            onClick={() => onCycleYearTaskStatus(task.id)}
+                          >
+                            {SIGNIFIERS[task.status]}
+                          </button>
+                          <button
+                            className={`year-view__task-text year-view__task-text--${task.status}`}
+                            onClick={() => onTaskClick(monthKey, task.id)}
+                          >
+                            {task.content}
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                    {monthNote && (
+                      <span className={`year-view__month-note${isCurrent ? ' year-view__month-note--current' : ''}`}>
+                        {monthNote.content}
+                      </span>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          ))}
+        </div>
 
-                    return (
-                      <td
-                        key={ci}
-                        className={
-                          'year-view__cell' +
-                          (cell.weekend ? ' year-view__cell--weekend' : '') +
-                          (cell.today ? ' year-view__cell--today' : '') +
-                          (cell.hasTasks ? ' year-view__cell--has-tasks' : '')
-                        }
-                        onClick={() => onDayClick(cell.dateKey)}
-                      >
-                        <span className="year-view__day-num">{cell.day}</span>
-                      </td>
-                    );
-                  })}
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+        {/* Right: year tasks panel */}
+        <div className="year-view__panel">
+          <div className="year-view__panel-label">{year}</div>
+          {yearTasks.map((task) => (
+            <div key={task.id} className={`year-view__year-task year-view__year-task--${task.status}`}>
+              <button
+                className="year-view__year-task-sig"
+                onClick={() => onCycleYearTaskStatus(task.id)}
+              >
+                {SIGNIFIERS[task.status]}
+              </button>
+              <button
+                className="year-view__year-task-content"
+                onClick={() => onTaskClick(yearKey, task.id)}
+              >
+                {task.content}
+              </button>
+            </div>
+          ))}
+          {addingTask ? (
+            <input
+              className="year-view__panel-input"
+              value={newTaskContent}
+              placeholder="new task..."
+              autoFocus
+              onChange={(e) => setNewTaskContent(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') handleAddTask();
+                if (e.key === 'Escape') { setNewTaskContent(''); setAddingTask(false); }
+              }}
+              onBlur={handleAddTask}
+            />
+          ) : (
+            <button className="year-view__panel-add" onClick={() => setAddingTask(true)}>
+              + add task
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );
