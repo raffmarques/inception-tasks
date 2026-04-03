@@ -78,15 +78,16 @@ App.tsx — Root, wires all hooks, handles auth gate, migration check, drag cont
 │   ├── TimeEffortView — Session time slider + ordered task list
 │   ├── TimeBoxingView — Morning / afternoon / night buckets
 │   ├── TimeEstimatePrompt — Prompt to set time estimates on tasks
-│   ├── Highlight — Daily highlight (droppable target for drag-and-drop)
-│   ├── SortableTaskItem — Sortable wrapper for drag-and-drop
-│   └── TaskItem — Individual task with signifier, actions, drag handle
+│   └── SortableTaskItem — Sortable wrapper for drag-and-drop
+├── TaskItem/ — Individual task with signifier, actions, drag handle
+│   └── DateRangePopover — Inline date range picker popover
+├── Highlight/ — Daily highlight (droppable target for drag-and-drop)
+├── ZoomNav/ — Zoom level navigation controls
 ├── WeekView/ — Weekly view: vertical day list + week tasks panel (nested DndContext)
 ├── MonthView/ — Monthly calendar view (vertical day list with tasks inline)
-├── YearView/ — Year overview
-├── FlowView/ — Flow/stream view: horizontal scrolling columns per zoom level
-│   ├── DroppableColumn — Single period column with tasks + add input (drop target for period tasks)
-│   └── PeriodPeekSidebar — Collapsible sidebar showing parent-period pinned tasks; supports drag-to-day
+├── QuarterView/ — Quarterly view: week rows grouped by month (left) + quarter tasks panel (right)
+├── YearView/ — Year view: month rows grouped by quarter (left) + year tasks panel (right)
+│   └── YearGrid — (unused) original table-based year overview, preserved for future Year Map feature
 ├── CalendarEvents/ — Google Calendar events display in DayView
 ├── Lists/ — ListsPanel (slide-over) + DayDropZone for dragging list items to days
 ├── TaskDetail/ — Full task detail overlay (edit description, category, dates, subtasks, attachments)
@@ -97,8 +98,7 @@ App.tsx — Root, wires all hooks, handles auth gate, migration check, drag cont
 ### Key Patterns
 - **Bullet journal signifiers**: ○ open, ● completed, › migrated, ‹ scheduled, × cancelled
 - **Status cycling**: open → completed → cancelled → open (via signifier click only — task content click opens TaskDetail)
-- **Focus vs Flow**: `focus` mode shows the structured DayView/WeekView/etc for planning; `flow` mode shows FlowView — a horizontal timeline of columns for reviewing tasks across time periods. Both modes share the same zoom level and date state.
-- **Period-pinning**: Tasks can be pinned to a period (week/month/quarter/year) rather than a specific day. These live in `days[periodKey]` (e.g., `days['2026-W12']`). In FlowView, the PeriodPeekSidebar shows the parent period's pinned tasks and allows dragging them down to a specific day column.
+- **Period-pinning**: Tasks can be pinned to a period (week/month/quarter/year) rather than a specific day. These live in `days[periodKey]` (e.g., `days['2026-W12']`). Each zoom level has a right-panel showing period-pinned tasks.
 - **Migration**: On app open, if yesterday has open tasks or a highlight, shows migration flow overlay
 - **Highlights**: Independent from tasks but can link via `taskId`. Exist at day/week/month/year levels. Support reflection rating (good/okay/missed).
 - **Drag-and-drop**: Open tasks are sortable (grip handle). Dragging onto highlight zone sets it as day's highlight. List items can be dragged to day drop zones. Uses @dnd-kit with TouchSensor for mobile.
@@ -139,4 +139,5 @@ Edge Functions (`supabase/functions/`):
 - CSS uses BEM naming: `.component__element--modifier`
 - CSS variables defined in `src/index.css` (colors, spacing, font sizes)
 - Minimal, paper-like aesthetic with warm tones
-- Font: IBM Plex Mono (headings) + Inter (body)
+- Font: JetBrains Mono (body/monospace) + Lora (display/headings)
+- Design tokens: cream/ink/copper/sage palette (`--color-cream`, `--color-ink`, `--color-copper`, `--color-sage`)
