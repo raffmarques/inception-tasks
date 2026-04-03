@@ -7,8 +7,9 @@ import {
   fromDateKey,
   toWeekKey,
   getWeeksInQuarter,
+  fromWeekKey,
 } from '../../utils/dates';
-import { format, startOfWeek, getISOWeek, isBefore, isAfter, startOfDay, addDays } from 'date-fns';
+import { format, getISOWeek, isBefore, isAfter, startOfDay, addDays } from 'date-fns';
 import './QuarterView.css';
 
 // ── Types ────────────────────────────────────────────────────────────────────
@@ -24,12 +25,7 @@ type WeekPosition = 'past' | 'current' | 'future';
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
 function getWeekDateRange(weekKey: string): { start: Date; end: Date } {
-  const [yearStr, wStr] = weekKey.split('-W');
-  const year = parseInt(yearStr);
-  const week = parseInt(wStr);
-  const jan4 = new Date(year, 0, 4);
-  const weekOneMonday = startOfWeek(jan4, { weekStartsOn: 1 });
-  const start = addDays(weekOneMonday, (week - 1) * 7);
+  const start = fromDateKey(fromWeekKey(weekKey));
   const end = addDays(start, 6);
   return { start, end };
 }
@@ -92,6 +88,7 @@ interface Props {
   onAddQuarterTask: (content: string) => void;
   onCycleQuarterTaskStatus: (taskId: string) => void;
   onCycleDayTaskStatus: (dateKey: string, taskId: string) => void;
+  onCycleWeekTaskStatus: (weekKey: string, taskId: string) => void;
   onTaskClick: (dateKey: string, taskId: string) => void;
   onWeekClick: (weekKey: string) => void;
 }
@@ -107,6 +104,7 @@ export function QuarterView({
   onAddQuarterTask,
   onCycleQuarterTaskStatus,
   onCycleDayTaskStatus,
+  onCycleWeekTaskStatus,
   onTaskClick,
   onWeekClick,
 }: Props) {
@@ -204,7 +202,8 @@ export function QuarterView({
                           <button
                             className={`quarter-view__task-sig quarter-view__task-sig--${task.status}`}
                             onClick={() => {
-                              if (dateKey === wk) onCycleQuarterTaskStatus(task.id);
+                              if (dateKey === quarterKey) onCycleQuarterTaskStatus(task.id);
+                              else if (dateKey.includes('-W')) onCycleWeekTaskStatus(dateKey, task.id);
                               else onCycleDayTaskStatus(dateKey, task.id);
                             }}
                           >
