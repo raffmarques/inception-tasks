@@ -91,3 +91,36 @@ export const formatYearHeader = (dateKey: string): string => {
 export const isDayToday = (dateKey: string): boolean => isToday(fromDateKey(dateKey));
 
 export { getISOWeek, getQuarter };
+
+export const getWeeksInQuarter = (dateKey: string): string[] => {
+  const date = fromDateKey(dateKey);
+  const qStart = startOfQuarter(date);
+  const qEnd = endOfQuarter(date);
+  const weeks: string[] = [];
+  let cur = startOfWeek(qStart, { weekStartsOn: 1 });
+  while (cur <= qEnd) {
+    weeks.push(toWeekKey(cur));
+    cur = addDays(cur, 7);
+  }
+  return [...new Set(weeks)];
+};
+
+/**
+ * Returns the first day (Monday) of a week key like "2026-W09" as a YYYY-MM-DD string.
+ * Used for navigating to a week from QuarterView.
+ */
+export const fromWeekKey = (weekKey: string): string => {
+  const [yearStr, wStr] = weekKey.split('-W');
+  const year = parseInt(yearStr);
+  const week = parseInt(wStr);
+  const jan4 = new Date(year, 0, 4);
+  const weekOneMonday = startOfWeek(jan4, { weekStartsOn: 1 });
+  const targetMonday = addDays(weekOneMonday, (week - 1) * 7);
+  return toDateKey(targetMonday);
+};
+
+/**
+ * Returns the first day of a month key like "2026-03" as a YYYY-MM-DD string.
+ * Used for navigating to a month from YearView.
+ */
+export const fromMonthKey = (monthKey: string): string => `${monthKey}-01`;

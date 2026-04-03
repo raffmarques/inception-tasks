@@ -1,0 +1,275 @@
+.quarter-view {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+/* Highlight bar */
+.quarter-view__highlight {
+  background: var(--bg-highlight);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius);
+  padding: var(--space-md);
+}
+
+.quarter-view__highlight-set,
+.quarter-view__highlight-empty {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.quarter-view__sun { color: var(--accent); flex-shrink: 0; }
+.quarter-view__highlight-text { flex: 1; font-weight: 500; }
+.quarter-view__highlight-clear { font-size: var(--fs-xs); color: var(--text-faint); }
+.quarter-view__highlight-clear:hover { color: var(--danger); }
+.quarter-view__highlight-input {
+  flex: 1; border: none; background: transparent; padding: var(--space-xs);
+}
+.quarter-view__highlight-input:focus { border: none; }
+
+/* Two-column body */
+.quarter-view__body {
+  display: flex;
+  gap: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+/* Left: weeks list */
+.quarter-view__list {
+  flex: 1;
+  min-width: 0;
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Month groupings */
+.quarter-view__month-group {
+  display: flex;
+  flex-direction: column;
+  border-bottom: 1px solid var(--border);
+}
+.quarter-view__month-group:last-child { border-bottom: none; }
+
+.quarter-view__month-header {
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: var(--space-xs) var(--space-sm);
+  border-bottom: 1px solid var(--border-light);
+  background: var(--bg-elevated);
+}
+
+/* Week row */
+.quarter-view__week-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+  padding: var(--space-xs) var(--space-sm);
+  border-bottom: 1px dotted var(--border-light);
+  min-height: 28px;
+}
+.quarter-view__week-row:last-child { border-bottom: none; }
+
+.quarter-view__week-row--current {
+  background: var(--accent-light);
+  box-shadow: inset 3px 0 0 var(--accent);
+  border-bottom-color: transparent;
+}
+
+.quarter-view__week-label {
+  font-size: var(--fs-xs);
+  color: var(--text-faint);
+  width: 32px;
+  flex-shrink: 0;
+  text-align: left;
+  padding: 2px 0 0 0;
+}
+.quarter-view__week-label--current {
+  color: var(--accent);
+  font-weight: 600;
+}
+.quarter-view__week-label:hover { color: var(--accent); }
+
+.quarter-view__week-dates {
+  font-size: var(--fs-xs);
+  color: var(--text-faint);
+  width: 72px;
+  flex-shrink: 0;
+  padding-top: 2px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Task lines */
+.quarter-view__week-tasks {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.quarter-view__week-empty {
+  font-size: var(--fs-xs);
+  color: var(--text-faint);
+  padding-top: 2px;
+}
+
+.quarter-view__task-line {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-xs);
+  font-size: var(--fs-sm);
+}
+
+.quarter-view__task-sig {
+  width: 12px;
+  flex-shrink: 0;
+  font-size: var(--fs-xs);
+  text-align: center;
+  padding: 0;
+  color: var(--text);
+}
+
+.quarter-view__task-text {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+  padding: 0;
+  font-size: var(--fs-sm);
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1.4;
+}
+
+.quarter-view__task-text--completed,
+.quarter-view__task-text--cancelled {
+  color: var(--text-muted);
+  text-decoration: line-through;
+}
+
+.quarter-view__task-text--migrated,
+.quarter-view__task-text--scheduled {
+  color: var(--text-faint);
+}
+
+.quarter-view__task-date {
+  font-size: var(--fs-xs);
+  color: var(--accent);
+  background: var(--accent-light);
+  padding: 1px 4px;
+  border-radius: 2px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.quarter-view__task-date--past {
+  color: var(--text-faint);
+  background: var(--bg-elevated);
+}
+
+/* Week highlight note */
+.quarter-view__week-highlight {
+  font-size: var(--fs-xs);
+  font-style: italic;
+  color: var(--accent);
+  border-left: 2px solid var(--border);
+  padding-left: var(--space-xs);
+  margin-left: var(--space-xs);
+  align-self: flex-start;
+  flex-shrink: 0;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding-top: 2px;
+}
+
+/* Right: quarter tasks panel */
+.quarter-view__panel {
+  flex: 0 0 35%;
+  padding: var(--space-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.quarter-view__panel-label {
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding-bottom: var(--space-xs);
+}
+
+.quarter-view__quarter-task {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-size: var(--fs-sm);
+  padding: 3px var(--space-xs);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-elevated);
+  line-height: 1.4;
+}
+
+.quarter-view__quarter-task--completed,
+.quarter-view__quarter-task--cancelled {
+  color: var(--text-muted);
+  text-decoration: line-through;
+}
+
+.quarter-view__quarter-task--migrated,
+.quarter-view__quarter-task--scheduled {
+  color: var(--text-faint);
+}
+
+.quarter-view__quarter-task-sig {
+  width: 12px;
+  flex-shrink: 0;
+  font-size: var(--fs-xs);
+  text-align: center;
+  padding: 0;
+  color: inherit;
+}
+
+.quarter-view__quarter-task-content {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+  padding: 0;
+  font-size: var(--fs-sm);
+  color: inherit;
+}
+
+.quarter-view__panel-add {
+  font-size: var(--fs-xs);
+  color: var(--text-faint);
+  text-align: left;
+  padding: var(--space-xs) 0;
+  border-top: 1px solid var(--border-light);
+  margin-top: auto;
+}
+.quarter-view__panel-add:hover { color: var(--text-muted); }
+
+.quarter-view__panel-input {
+  font-size: var(--fs-sm);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  padding: 3px var(--space-xs);
+  background: var(--bg-elevated);
+  width: 100%;
+}
