@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>bujo — flow view</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="prototype.css">
+</head>
+<body>
+
+<div class="shell">
+
+  <!-- HEADER -->
+  <header class="header">
+    <div>
+      <span class="header__brand">bujo</span>
+      <span class="header__date-sub">sunday · march 22</span>
+    </div>
+    <div class="header__controls">
+      <div class="zoom-pills">
+        <button class="zoom-pill active" onclick="setZoom(this)">day</button>
+        <button class="zoom-pill" onclick="setZoom(this)">week</button>
+        <button class="zoom-pill" onclick="setZoom(this)">month</button>
+        <button class="zoom-pill" onclick="setZoom(this)">qtr</button>
+        <button class="zoom-pill" onclick="setZoom(this)">year</button>
+      </div>
+      <div class="sync-dot" id="syncDot" title="Synced"></div>
+      <button class="btn-ghost">lists</button>
+      <button class="btn-ghost">migrate</button>
+    </div>
+  </header>
+
+  <!-- VIEW TABS -->
+  <div style="padding-top:14px">
+    <nav class="view-tabs">
+      <a href="index.html" class="view-tab">focus</a>
+      <a href="flow.html" class="view-tab active">flow</a>
+      <a href="design-system.html" class="view-tab">design system</a>
+      <a href="mobile.html" class="view-tab">&#9656; mobile</a>
+    </nav>
+  </div>
+
+  <!-- ── FLOW VIEW ── -->
+  <div class="view" id="view-flow">
+    <div class="subheader">
+      <button class="subheader__arrow">&#8249;</button>
+      <div>
+        <div class="subheader__title">March 2026</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:24px">
+        <span class="subheader__meta">W10 – W14</span>
+        <button class="subheader__arrow">&#8250;</button>
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:stretch">
+      <div class="flow-layout" style="flex:1">
+
+        <div class="flow-col">
+          <div class="flow-col__header">
+            <div class="flow-col__title">Monday</div>
+            <div class="flow-col__subtitle">Mar 18</div>
+          </div>
+          <div class="flow-task flow-task--completed">
+            <span class="flow-task__sig">&#9679;</span>
+            <span class="flow-task__content">Team standup</span>
+          </div>
+          <div class="flow-task flow-task--completed">
+            <span class="flow-task__sig">&#9679;</span>
+            <span class="flow-task__content">Fix auth redirect bug</span>
+          </div>
+          <div class="flow-task flow-task--migrated">
+            <span class="flow-task__sig">&#8250;</span>
+            <span class="flow-task__content">Write API docs</span>
+          </div>
+          <div class="flow-add"><span class="flow-add__sig">&#9675;</span><input class="flow-add__input" placeholder="Add..."></div>
+        </div>
+
+        <div class="flow-col">
+          <div class="flow-col__header">
+            <div class="flow-col__title">Tuesday</div>
+            <div class="flow-col__subtitle">Mar 19</div>
+          </div>
+          <div class="flow-highlight">
+            <span class="flow-highlight__icon">&#9728;</span>
+            <span class="flow-highlight__text">Ship period-pinning</span>
+          </div>
+          <div class="flow-task flow-task--completed">
+            <span class="flow-task__sig">&#9679;</span>
+            <span class="flow-task__content">Period-pinning feature</span>
+          </div>
+          <div class="flow-task flow-task--completed">
+            <span class="flow-task__sig">&#9679;</span>
+            <span class="flow-task__content">PR review</span>
+          </div>
+          <div class="flow-add"><span class="flow-add__sig">&#9675;</span><input class="flow-add__input" placeholder="Add..."></div>
+        </div>
+
+        <div class="flow-col">
+          <div class="flow-col__header">
+            <div class="flow-col__title">Wednesday</div>
+            <div class="flow-col__subtitle">Mar 20</div>
+          </div>
+          <div class="flow-task flow-task--completed">
+            <span class="flow-task__sig">&#9679;</span>
+            <span class="flow-task__content">PeriodPeekSidebar</span>
+          </div>
+          <div class="flow-task">
+            <span class="flow-task__sig">&#9675;</span>
+            <span class="flow-task__content">Drag-to-day UX polish</span>
+          </div>
+          <div class="flow-add"><span class="flow-add__sig">&#9675;</span><input class="flow-add__input" placeholder="Add..."></div>
+        </div>
+
+        <div class="flow-col flow-col--current">
+          <div class="flow-col__header">
+            <div class="flow-col__title">Sunday</div>
+            <div class="flow-col__subtitle">Mar 22 · today</div>
+          </div>
+          <div class="flow-highlight">
+            <span class="flow-highlight__icon">&#9728;</span>
+            <span class="flow-highlight__text">Ship the FlowView redesign</span>
+          </div>
+          <div class="flow-task">
+            <span class="flow-task__sig">&#9675;</span>
+            <span class="flow-task__content">Write migration flow tests</span>
+          </div>
+          <div class="flow-task">
+            <span class="flow-task__sig">&#9675;</span>
+            <span class="flow-task__content">Deploy preview to Vercel</span>
+          </div>
+          <div class="flow-add"><span class="flow-add__sig">&#9675;</span><input class="flow-add__input" placeholder="Add..."></div>
+        </div>
+
+        <div class="flow-col">
+          <div class="flow-col__header">
+            <div class="flow-col__title">Monday</div>
+            <div class="flow-col__subtitle">Mar 23</div>
+          </div>
+          <div class="flow-task">
+            <span class="flow-task__sig">&#9675;</span>
+            <span class="flow-task__content">Implement CSS redesign</span>
+          </div>
+          <div class="flow-add"><span class="flow-add__sig">&#9675;</span><input class="flow-add__input" placeholder="Add..."></div>
+        </div>
+
+        <div class="flow-col">
+          <div class="flow-col__header">
+            <div class="flow-col__title">Tuesday</div>
+            <div class="flow-col__subtitle">Mar 24</div>
+          </div>
+          <div class="flow-add"><span class="flow-add__sig">&#9675;</span><input class="flow-add__input" placeholder="Add..."></div>
+        </div>
+
+        <div class="flow-col">
+          <div class="flow-col__header">
+            <div class="flow-col__title">Wednesday</div>
+            <div class="flow-col__subtitle">Mar 25</div>
+          </div>
+          <div class="flow-add"><span class="flow-add__sig">&#9675;</span><input class="flow-add__input" placeholder="Add..."></div>
+        </div>
+
+      </div>
+
+      <!-- Peek Sidebar -->
+      <div class="peek-sidebar" id="peekSidebar">
+        <button class="peek-strip" id="peekStrip" onclick="togglePeek()">
+          <span class="peek-strip__count">3</span>
+          <span>W12</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /shell -->
+
+<script src="prototype.js" defer></script>
+</body>
+</html>

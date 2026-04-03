@@ -1,0 +1,2745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>bujo — redesign prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+/* ─── TOKENS ───────────────────────────────────────────────── */
+:root {
+  --cream:       #F6F1E7;
+  --cream-mid:   #EDE7D6;
+  --cream-dark:  #E0D8C4;
+  --ink:         #1A1612;
+  --ink-mid:     #3A342D;
+  --ink-faint:   #7A6F65;
+  --ink-ghost:   #B8AFA4;
+  --copper:      #B85C28;
+  --copper-light:#D4784A;
+  --copper-pale: #F0DDD0;
+  --sage:        #3D5246;
+  --sage-light:  #6E8B7C;
+  --sage-pale:   #D6E4DE;
+
+  --font-display: 'Lora', Georgia, serif;
+  --font-mono:    'JetBrains Mono', 'Courier New', monospace;
+
+  --r-sm:  3px;
+  --r-md:  6px;
+  --r-lg:  12px;
+
+  --sig-open:      var(--ink-mid);
+  --sig-done:      var(--sage);
+  --sig-migrated:  var(--copper);
+  --sig-cancelled: var(--ink-ghost);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 14px; }
+
+body {
+  background: var(--cream);
+  color: var(--ink);
+  font-family: var(--font-mono);
+  min-height: 100vh;
+  position: relative;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 1000;
+  opacity: 0.4;
+}
+
+/* ─── NAVIGATION TABS ──────────────────────────────────────── */
+.view-tabs {
+  display: flex;
+  gap: 8px;
+  padding: 0 0 32px;
+  border-bottom: 1px solid var(--cream-dark);
+  margin-bottom: 32px;
+}
+.view-tab {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 6px 14px;
+  border: 1px solid transparent;
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  background: none;
+  color: var(--ink-faint);
+  transition: all 0.15s ease;
+}
+.view-tab:hover { color: var(--ink); border-color: var(--cream-dark); }
+.view-tab.active { background: var(--ink); color: var(--cream); border-color: var(--ink); }
+
+/* ─── SHELL ────────────────────────────────────────────────── */
+.shell {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 32px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ─── HEADER ───────────────────────────────────────────────── */
+.header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 28px 0 20px;
+  border-bottom: 2px solid var(--ink);
+}
+
+.header__brand {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 400;
+  font-style: italic;
+  color: var(--ink);
+}
+
+.header__date-sub {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--ink-faint);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-left: 10px;
+}
+
+.header__controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.btn-ghost {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 5px 10px;
+  border: 1px solid var(--cream-dark);
+  border-radius: var(--r-sm);
+  background: none;
+  color: var(--ink-faint);
+  cursor: pointer;
+  transition: all 0.12s;
+}
+.btn-ghost:hover { border-color: var(--ink-faint); color: var(--ink); }
+
+.zoom-pills {
+  display: flex;
+  background: var(--cream-mid);
+  border-radius: var(--r-sm);
+  padding: 2px;
+  border: 1px solid var(--cream-dark);
+}
+.zoom-pill {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 4px 9px;
+  border-radius: 2px;
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: var(--ink-faint);
+  transition: all 0.12s;
+}
+.zoom-pill.active { background: var(--ink); color: var(--cream); }
+
+.sync-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--sage-light);
+}
+.sync-dot.syncing {
+  background: var(--copper-light);
+  animation: pulse 1.2s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+/* ─── SUBHEADER ─────────────────────────────────────────────── */
+.subheader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--cream-dark);
+  margin-bottom: 28px;
+}
+.subheader__arrow {
+  width: 28px; height: 28px;
+  display: flex; align-items: center; justify-content: center;
+  border: 1px solid var(--cream-dark);
+  border-radius: var(--r-sm);
+  font-size: 0.75rem;
+  cursor: pointer;
+  background: none;
+  color: var(--ink-mid);
+  transition: all 0.12s;
+}
+.subheader__arrow:hover { border-color: var(--ink-faint); background: var(--cream-mid); }
+.subheader__title {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+.subheader__meta {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--ink-ghost);
+  letter-spacing: 0.08em;
+}
+
+/* ─── VIEW CONTAINER ────────────────────────────────────────── */
+.view { display: none; }
+.view.active { display: block; animation: fadeIn 0.2s ease; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:none} }
+
+/* ─── FOCUS VIEW ────────────────────────────────────────────── */
+.focus-layout {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: 48px;
+  align-items: start;
+}
+
+.task-list { display: flex; flex-direction: column; }
+
+.task-item {
+  display: grid;
+  grid-template-columns: 20px 1fr auto;
+  align-items: baseline;
+  gap: 10px;
+  padding: 9px 10px;
+  border-bottom: 1px solid var(--cream-dark);
+  cursor: pointer;
+  transition: background 0.1s;
+  margin: 0 -10px;
+  border-radius: 0;
+}
+.task-item:first-child { border-top: 1px solid var(--cream-dark); }
+.task-item:hover { background: var(--cream-mid); }
+
+.task-item__sig {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--sig-open);
+  cursor: pointer;
+  text-align: center;
+  line-height: 1;
+  padding-top: 1px;
+  transition: transform 0.1s;
+  user-select: none;
+}
+.task-item__sig:hover { transform: scale(1.3); }
+.task-item--completed .task-item__sig { color: var(--sig-done); }
+.task-item--migrated  .task-item__sig { color: var(--sig-migrated); }
+.task-item--cancelled .task-item__sig { color: var(--sig-cancelled); }
+
+.task-item__content {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--ink);
+}
+.task-item--completed .task-item__content { color: var(--ink-ghost); text-decoration: line-through; text-decoration-color: var(--sage); }
+.task-item--cancelled .task-item__content { color: var(--ink-ghost); text-decoration: line-through; }
+
+.task-item__meta { display: flex; align-items: center; gap: 6px; }
+
+.task-badge {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.06em;
+  padding: 2px 6px;
+  border-radius: 2px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.task-badge--time     { background: var(--copper-pale); color: var(--copper); }
+.task-badge--category { background: var(--sage-pale);   color: var(--sage); }
+
+.task-add {
+  display: grid;
+  grid-template-columns: 20px 1fr;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 0;
+  opacity: 0.5;
+  transition: opacity 0.15s;
+}
+.task-add:focus-within { opacity: 1; }
+.task-add__sig { font-family: var(--font-mono); font-size: 0.85rem; color: var(--ink-ghost); text-align: center; }
+.task-add__input {
+  font-family: var(--font-mono); font-size: 0.82rem;
+  background: none; border: none; outline: none; color: var(--ink); width: 100%;
+}
+.task-add__input::placeholder { color: var(--ink-ghost); }
+
+.highlight-zone {
+  border: 1.5px dashed var(--copper-light);
+  border-radius: var(--r-md);
+  padding: 16px;
+  background: var(--copper-pale);
+  margin-bottom: 24px;
+}
+.highlight-zone__label {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--copper);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.highlight-zone__label::before { content: '☀'; font-size: 0.75rem; }
+.highlight-zone__content {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-style: italic;
+  color: var(--ink);
+  line-height: 1.45;
+}
+
+.sidebar-section { margin-bottom: 24px; }
+.sidebar-section__label {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-ghost);
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--cream-dark);
+  margin-bottom: 12px;
+}
+.sidebar-mini-task {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--ink-faint);
+  padding: 5px 0;
+  display: flex;
+  gap: 8px;
+  border-bottom: 1px dotted var(--cream-dark);
+}
+.sidebar-mini-task:last-child { border: none; }
+
+.mode-selector { display: flex; gap: 4px; margin-bottom: 28px; }
+.mode-btn {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 5px 12px;
+  border: 1px solid var(--cream-dark);
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  background: none;
+  color: var(--ink-faint);
+  transition: all 0.12s;
+}
+.mode-btn:hover { color: var(--ink); border-color: var(--ink-faint); }
+.mode-btn.active { background: var(--cream-mid); color: var(--ink); border-color: var(--ink-mid); }
+
+/* ─── FLOW VIEW ─────────────────────────────────────────────── */
+.flow-layout {
+  display: flex;
+  gap: 0;
+  overflow-x: auto;
+  padding-bottom: 16px;
+  min-height: 500px;
+  position: relative;
+  margin: 0 -32px;
+  padding: 0 32px 16px;
+}
+.flow-layout::-webkit-scrollbar { height: 4px; }
+.flow-layout::-webkit-scrollbar-track { background: var(--cream-mid); }
+.flow-layout::-webkit-scrollbar-thumb { background: var(--ink-ghost); border-radius: 2px; }
+
+.flow-col {
+  min-width: 180px;
+  flex-shrink: 0;
+  padding: 0 16px;
+  border-right: 1px solid var(--cream-dark);
+  position: relative;
+  transition: background 0.15s;
+}
+.flow-col:first-child { padding-left: 0; }
+.flow-col:last-child  { border-right: none; }
+.flow-col:hover { background: rgba(0,0,0,0.015); }
+
+.flow-col--current {
+  background: var(--cream-mid);
+}
+.flow-col--current::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--copper);
+}
+
+.flow-col__header {
+  padding: 0 0 12px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid var(--cream-dark);
+  cursor: pointer;
+}
+.flow-col__header:hover .flow-col__title { color: var(--copper); }
+
+.flow-col__title {
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--ink);
+  line-height: 1;
+  margin-bottom: 2px;
+  transition: color 0.12s;
+}
+.flow-col__subtitle {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  color: var(--ink-ghost);
+  letter-spacing: 0.05em;
+}
+
+.flow-task {
+  display: flex;
+  gap: 6px;
+  padding: 5px 0;
+  border-bottom: 1px dotted var(--cream-dark);
+  cursor: pointer;
+}
+.flow-task:last-of-type { border: none; }
+.flow-task:hover .flow-task__content { color: var(--copper); }
+
+.flow-task__sig {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--sig-open);
+  flex-shrink: 0;
+  transition: transform 0.1s;
+  cursor: pointer;
+}
+.flow-task__sig:hover { transform: scale(1.3); }
+.flow-task--completed .flow-task__sig { color: var(--sig-done); }
+.flow-task--migrated  .flow-task__sig { color: var(--sig-migrated); }
+
+.flow-task__content {
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  color: var(--ink-mid);
+  line-height: 1.4;
+  transition: color 0.1s;
+}
+.flow-task--completed .flow-task__content { text-decoration: line-through; color: var(--ink-ghost); }
+
+.flow-highlight {
+  display: flex;
+  gap: 6px;
+  align-items: flex-start;
+  padding: 6px 8px;
+  background: var(--copper-pale);
+  border-radius: var(--r-sm);
+  margin-bottom: 8px;
+}
+.flow-highlight__icon { font-size: 0.7rem; color: var(--copper); flex-shrink: 0; margin-top: 1px; }
+.flow-highlight__text {
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-style: italic;
+  color: var(--ink-mid);
+  line-height: 1.35;
+}
+
+.flow-add {
+  display: flex; gap: 6px; padding: 5px 0;
+  opacity: 0.4; transition: opacity 0.15s;
+}
+.flow-add:focus-within { opacity: 1; }
+.flow-add__sig { font-family: var(--font-mono); font-size: 0.8rem; color: var(--ink-ghost); }
+.flow-add__input {
+  font-family: var(--font-mono); font-size: 0.74rem;
+  background: none; border: none; outline: none; color: var(--ink); width: 100%; min-width: 0;
+}
+.flow-add__input::placeholder { color: var(--ink-ghost); }
+
+/* Peek sidebar */
+.peek-sidebar {
+  min-width: 48px;
+  flex-shrink: 0;
+  border-left: 2px solid var(--ink);
+  background: var(--cream);
+  transition: min-width 0.2s ease;
+  overflow: hidden;
+}
+.peek-sidebar--open { min-width: 220px; }
+
+.peek-strip {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  transform: rotate(180deg);
+  padding: 16px 14px;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  transition: color 0.12s;
+  background: none;
+  border: none;
+}
+.peek-strip:hover { color: var(--copper); }
+
+.peek-strip__count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px; height: 16px;
+  background: var(--copper);
+  color: var(--cream);
+  border-radius: 50%;
+  font-size: 0.6rem;
+  transform: rotate(180deg);
+  writing-mode: horizontal-tb;
+}
+
+.peek-panel { padding: 16px; min-width: 220px; }
+.peek-panel__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--cream-dark);
+}
+.peek-panel__title {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--ink);
+}
+.peek-close {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--ink-ghost);
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 2px 4px;
+}
+
+/* ─── MIGRATION OVERLAY ─────────────────────────────────────── */
+.overlay-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(26, 22, 18, 0.6);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 500;
+  animation: backdropIn 0.25s ease;
+}
+@keyframes backdropIn { from{opacity:0} to{opacity:1} }
+
+.migration-modal {
+  background: var(--cream);
+  border: 2px solid var(--ink);
+  border-radius: var(--r-lg);
+  width: 520px;
+  max-width: calc(100vw - 48px);
+  max-height: 80vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: modalIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 6px 6px 0 var(--ink);
+}
+@keyframes modalIn { from{opacity:0;transform:translateY(16px) scale(0.97)} to{opacity:1;transform:none} }
+
+.migration-modal__header {
+  padding: 24px 28px 18px;
+  border-bottom: 1px solid var(--cream-dark);
+}
+.migration-modal__eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--copper);
+  margin-bottom: 6px;
+}
+.migration-modal__title {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  font-weight: 500;
+  color: var(--ink);
+}
+.migration-modal__subtitle {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--ink-faint);
+  margin-top: 4px;
+}
+
+.migration-modal__body { padding: 20px 28px; overflow-y: auto; flex: 1; }
+
+.migration-task {
+  display: grid;
+  grid-template-columns: 16px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px dotted var(--cream-dark);
+}
+.migration-task:last-child { border: none; }
+.migration-task__sig { font-family: var(--font-mono); font-size: 0.8rem; color: var(--ink-ghost); text-align: center; }
+.migration-task__content { font-family: var(--font-mono); font-size: 0.8rem; color: var(--ink-mid); line-height: 1.4; }
+.migration-task__actions { display: flex; gap: 4px; }
+
+.migration-action {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  padding: 3px 7px;
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  border: 1px solid var(--cream-dark);
+  background: none;
+  color: var(--ink-faint);
+  transition: all 0.12s;
+}
+.migration-action:hover { border-color: var(--ink-faint); color: var(--ink); }
+.migration-action--carry   { border-color: var(--sage-light);   color: var(--sage); }
+.migration-action--carry:hover { background: var(--sage-pale); }
+.migration-action--migrate { border-color: var(--copper-light); color: var(--copper); }
+.migration-action--migrate:hover { background: var(--copper-pale); }
+
+.migration-modal__footer {
+  padding: 18px 28px;
+  border-top: 1px solid var(--cream-dark);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.migration-modal__progress { font-family: var(--font-mono); font-size: 0.65rem; color: var(--ink-ghost); }
+
+.btn-primary {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 9px 20px;
+  background: var(--ink);
+  color: var(--cream);
+  border: none;
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  transition: all 0.12s;
+}
+.btn-primary:hover { background: var(--ink-mid); }
+
+/* ─── TASK DETAIL OVERLAY ─────────────────────────────────── */
+.task-detail-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(26, 22, 18, 0.5);
+  backdrop-filter: blur(2px);
+  display: flex;
+  justify-content: flex-end;
+  z-index: 500;
+  animation: backdropIn 0.2s ease;
+}
+.task-detail-panel {
+  background: var(--cream);
+  border-left: 2px solid var(--ink);
+  width: 440px;
+  max-width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  animation: slideIn 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  box-shadow: -4px 0 24px rgba(26,22,18,0.12);
+}
+@keyframes slideIn { from{transform:translateX(100%)} to{transform:none} }
+
+.task-detail-panel__header {
+  padding: 24px 28px 16px;
+  border-bottom: 1px solid var(--cream-dark);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+.task-detail-panel__sig {
+  font-family: var(--font-mono);
+  font-size: 1.1rem;
+  color: var(--sig-open);
+  cursor: pointer;
+  margin-top: 2px;
+  flex-shrink: 0;
+  transition: transform 0.1s;
+}
+.task-detail-panel__sig:hover { transform: scale(1.2); }
+.task-detail-panel__title {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--ink);
+  flex: 1;
+  line-height: 1.35;
+  border: none;
+  outline: none;
+  background: none;
+  resize: none;
+  font-style: italic;
+  width: 100%;
+}
+.task-detail-panel__close {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--ink-ghost);
+  background: none;
+  border: none;
+  cursor: pointer;
+  flex-shrink: 0;
+  padding: 2px;
+}
+
+.task-detail-panel__body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.detail-field { display: flex; flex-direction: column; gap: 6px; }
+.detail-field__label {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-ghost);
+}
+.detail-field__input {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  background: var(--cream-mid);
+  border: 1px solid var(--cream-dark);
+  border-radius: var(--r-sm);
+  padding: 8px 10px;
+  color: var(--ink);
+  outline: none;
+  transition: border-color 0.12s;
+}
+.detail-field__input:focus { border-color: var(--ink-faint); }
+.detail-field__textarea {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  background: var(--cream-mid);
+  border: 1px solid var(--cream-dark);
+  border-radius: var(--r-sm);
+  padding: 10px 12px;
+  color: var(--ink);
+  outline: none;
+  resize: vertical;
+  min-height: 80px;
+  line-height: 1.6;
+  transition: border-color 0.12s;
+}
+.detail-field__textarea:focus { border-color: var(--ink-faint); }
+
+.detail-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+.subtask-list { display: flex; flex-direction: column; gap: 4px; }
+.subtask-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  background: var(--cream-mid);
+  border-radius: var(--r-sm);
+  border: 1px solid var(--cream-dark);
+}
+.subtask-item input[type="checkbox"] { accent-color: var(--sage); cursor: pointer; }
+.subtask-item__label { font-family: var(--font-mono); font-size: 0.75rem; color: var(--ink-mid); flex: 1; }
+.subtask-item__label.checked { text-decoration: line-through; color: var(--ink-ghost); }
+
+.task-detail-panel__footer {
+  padding: 16px 28px;
+  border-top: 1px solid var(--cream-dark);
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.btn-danger {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 8px 14px;
+  background: none;
+  border: 1px solid var(--cream-dark);
+  border-radius: var(--r-sm);
+  color: var(--ink-ghost);
+  cursor: pointer;
+  transition: all 0.12s;
+}
+.btn-danger:hover { border-color: #C0392B; color: #C0392B; }
+
+/* ─── RATING BUTTONS ─────────────────────────────────────────── */
+.rating-group { display: flex; gap: 6px; }
+.rating-btn {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  padding: 5px 10px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--cream-dark);
+  cursor: pointer;
+  background: none;
+  color: var(--ink-faint);
+  transition: all 0.12s;
+}
+.rating-btn.good.active   { background: var(--sage-pale);   color: var(--sage);   border-color: var(--sage-light); }
+.rating-btn.okay.active   { background: var(--copper-pale); color: var(--copper); border-color: var(--copper-light); }
+.rating-btn.missed.active { background: var(--cream-mid);   color: var(--ink-faint); border-color: var(--ink-ghost); }
+
+/* ─── DESIGN SYSTEM ──────────────────────────────────────────── */
+.ds-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 32px; }
+.ds-swatch {
+  border-radius: var(--r-md);
+  padding: 16px;
+  border: 1px solid rgba(0,0,0,0.08);
+}
+.ds-swatch__name { font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; margin-top: 32px; opacity: 0.7; }
+.ds-swatch__val  { font-family: var(--font-mono); font-size: 0.65rem; opacity: 0.5; }
+
+.ds-type-sample { margin-bottom: 20px; }
+.ds-type-sample__label { font-family: var(--font-mono); font-size: 0.58rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-ghost); margin-bottom: 4px; }
+
+/* ─── STAGGER ANIMATIONS ─────────────────────────────────────── */
+@keyframes staggerIn {
+  from { opacity: 0; transform: translateX(-8px); }
+  to   { opacity: 1; transform: none; }
+}
+.task-item { animation: staggerIn 0.2s ease both; }
+.task-item:nth-child(1) { animation-delay: 0.04s; }
+.task-item:nth-child(2) { animation-delay: 0.08s; }
+.task-item:nth-child(3) { animation-delay: 0.12s; }
+.task-item:nth-child(4) { animation-delay: 0.16s; }
+.task-item:nth-child(5) { animation-delay: 0.20s; }
+.task-item:nth-child(6) { animation-delay: 0.24s; }
+
+.flow-col { animation: staggerIn 0.2s ease both; }
+.flow-col:nth-child(1) { animation-delay: 0.02s; }
+.flow-col:nth-child(2) { animation-delay: 0.06s; }
+.flow-col:nth-child(3) { animation-delay: 0.10s; }
+.flow-col:nth-child(4) { animation-delay: 0.14s; }
+.flow-col:nth-child(5) { animation-delay: 0.18s; }
+.flow-col:nth-child(6) { animation-delay: 0.22s; }
+.flow-col:nth-child(7) { animation-delay: 0.26s; }
+
+/* ─── MOBILE PHONE FRAME (prototype only) ───────────────────── */
+.phone-frame-outer {
+  display: flex;
+  gap: 48px;
+  align-items: flex-start;
+  padding: 8px 0 48px;
+  overflow-x: auto;
+}
+
+.phone-screen-label {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-ghost);
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.phone-frame {
+  width: 390px;
+  height: 844px;
+  border: 2px solid var(--ink);
+  border-radius: 44px;
+  overflow: hidden;
+  box-shadow: 4px 4px 0 var(--ink);
+  flex-shrink: 0;
+  position: relative;
+  background: var(--cream);
+}
+
+/* Notch */
+.phone-frame::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 34px;
+  background: var(--ink);
+  border-radius: 0 0 20px 20px;
+  z-index: 100;
+}
+
+.phone-inner {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  font-family: var(--font-mono);
+  color: var(--ink);
+  background: var(--cream);
+  position: relative;
+}
+
+/* ─── MOBILE HEADER ─────────────────────────────────────────── */
+.m-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 48px 20px 12px; /* top padding accounts for notch */
+  border-bottom: 2px solid var(--ink);
+  flex-shrink: 0;
+}
+
+.m-header__brand {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-style: italic;
+  color: var(--ink);
+}
+
+.m-header__date {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  color: var(--ink-faint);
+  text-transform: uppercase;
+}
+
+.m-header__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.m-icon-btn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--cream-dark);
+  border-radius: var(--r-sm);
+  background: none;
+  color: var(--ink-faint);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.12s;
+}
+.m-icon-btn:hover { border-color: var(--ink-faint); color: var(--ink); }
+
+/* ─── MOBILE ZOOM STRIP ─────────────────────────────────────── */
+.m-zoom-strip {
+  display: flex;
+  gap: 0;
+  padding: 8px 20px;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--cream-dark);
+  flex-shrink: 0;
+  background: var(--cream);
+}
+.m-zoom-strip::-webkit-scrollbar { display: none; }
+
+.m-zoom-pill {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 5px 12px;
+  border-radius: 20px;
+  border: 1px solid transparent;
+  background: none;
+  color: var(--ink-faint);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.12s;
+}
+.m-zoom-pill.active {
+  background: var(--ink);
+  color: var(--cream);
+}
+
+/* ─── MOBILE DATE NAV ───────────────────────────────────────── */
+.m-date-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px;
+  border-bottom: 1px solid var(--cream-dark);
+  flex-shrink: 0;
+}
+
+.m-nav-arrow {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--cream-dark);
+  border-radius: var(--r-sm);
+  background: none;
+  color: var(--ink-mid);
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.m-date-nav__title {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+
+.m-date-nav__sub {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  color: var(--ink-ghost);
+  letter-spacing: 0.08em;
+  text-align: center;
+  display: block;
+  margin-top: 1px;
+}
+
+/* ─── MOBILE SCROLL CONTENT ─────────────────────────────────── */
+.m-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0;
+}
+.m-scroll::-webkit-scrollbar { display: none; }
+
+/* ─── MOBILE TASK LIST ──────────────────────────────────────── */
+.m-task-item {
+  display: grid;
+  grid-template-columns: 44px 1fr;
+  align-items: stretch;
+  border-bottom: 1px solid var(--cream-dark);
+  min-height: 48px;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.m-task-item:hover { background: var(--cream-mid); }
+
+.m-task-item__sig-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-right: 1px solid var(--cream-dark);
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.m-task-item__sig-wrap:active { background: var(--cream-mid); }
+
+.m-task-item__sig {
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  color: var(--sig-open);
+  user-select: none;
+}
+
+.m-task-item--completed .m-task-item__sig { color: var(--sig-done); }
+.m-task-item--migrated  .m-task-item__sig { color: var(--sig-migrated); }
+.m-task-item--cancelled .m-task-item__sig { color: var(--sig-cancelled); }
+
+.m-task-item__body {
+  padding: 10px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  justify-content: center;
+}
+
+.m-task-item__content {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: var(--ink);
+}
+.m-task-item--completed .m-task-item__content { text-decoration: line-through; color: var(--ink-ghost); }
+.m-task-item--cancelled .m-task-item__content { text-decoration: line-through; color: var(--ink-ghost); }
+
+.m-task-item__badges {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+/* ─── MOBILE HIGHLIGHT ZONE ─────────────────────────────────── */
+.m-highlight {
+  margin: 16px 20px;
+  border: 1.5px dashed var(--copper-light);
+  border-radius: var(--r-md);
+  padding: 12px 14px;
+  background: var(--copper-pale);
+}
+.m-highlight__label {
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--copper);
+  margin-bottom: 6px;
+}
+.m-highlight__label::before { content: '☀ '; font-size: 0.7rem; }
+.m-highlight__content {
+  font-family: var(--font-display);
+  font-size: 0.88rem;
+  font-style: italic;
+  color: var(--ink);
+  line-height: 1.4;
+}
+
+/* ─── MOBILE MODE SELECTOR ──────────────────────────────────── */
+.m-mode-selector {
+  display: flex;
+  gap: 4px;
+  padding: 10px 20px;
+  border-bottom: 1px solid var(--cream-dark);
+  flex-shrink: 0;
+}
+.m-mode-btn {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  padding: 5px 10px;
+  border: 1px solid var(--cream-dark);
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  background: none;
+  color: var(--ink-faint);
+  white-space: nowrap;
+  transition: all 0.12s;
+}
+.m-mode-btn.active { background: var(--cream-mid); color: var(--ink); border-color: var(--ink-mid); }
+
+/* ─── MOBILE ADD TASK ROW ───────────────────────────────────── */
+.m-task-add {
+  display: grid;
+  grid-template-columns: 44px 1fr;
+  min-height: 48px;
+  border-bottom: 1px solid var(--cream-dark);
+  opacity: 0.5;
+  transition: opacity 0.15s;
+}
+.m-task-add:focus-within { opacity: 1; }
+.m-task-add__sig-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-right: 1px solid var(--cream-dark);
+}
+.m-task-add__sig { font-family: var(--font-mono); font-size: 0.9rem; color: var(--ink-ghost); }
+.m-task-add__input {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--ink);
+  padding: 0 16px;
+}
+.m-task-add__input::placeholder { color: var(--ink-ghost); }
+
+/* ─── MOBILE WEEK PEEK CHIP ─────────────────────────────────── */
+.m-week-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 14px 20px 0;
+  padding: 8px 12px;
+  border: 1px solid var(--cream-dark);
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  background: none;
+  transition: border-color 0.12s;
+  width: calc(100% - 40px);
+  text-align: left;
+}
+.m-week-chip:hover { border-color: var(--ink-faint); }
+.m-week-chip__label {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-ghost);
+  flex: 1;
+}
+.m-week-chip__count {
+  background: var(--copper);
+  color: var(--cream);
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  padding: 2px 7px;
+  border-radius: 10px;
+}
+.m-week-chip__arrow {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--ink-ghost);
+}
+
+/* ─── MOBILE FLOW VIEW ──────────────────────────────────────── */
+.m-flow-scroll {
+  display: flex;
+  overflow-x: auto;
+  height: 100%;
+  padding-bottom: 8px;
+}
+.m-flow-scroll::-webkit-scrollbar { display: none; }
+
+.m-flow-col {
+  min-width: 160px;
+  flex-shrink: 0;
+  border-right: 1px solid var(--cream-dark);
+  padding: 12px 14px;
+  position: relative;
+}
+.m-flow-col:first-child { padding-left: 20px; }
+.m-flow-col:last-child  { border-right: none; padding-right: 20px; }
+
+.m-flow-col--current { background: var(--cream-mid); }
+.m-flow-col--current::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--copper);
+}
+
+.m-flow-col__header {
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--cream-dark);
+}
+.m-flow-col__title {
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--ink);
+  line-height: 1;
+  margin-bottom: 2px;
+}
+.m-flow-col__subtitle {
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  color: var(--ink-ghost);
+  letter-spacing: 0.05em;
+}
+
+.m-flow-task {
+  display: flex;
+  gap: 6px;
+  padding: 5px 0;
+  border-bottom: 1px dotted var(--cream-dark);
+}
+.m-flow-task__sig { font-family: var(--font-mono); font-size: 0.75rem; color: var(--sig-open); flex-shrink: 0; }
+.m-flow-task--completed .m-flow-task__sig { color: var(--sig-done); }
+.m-flow-task--migrated  .m-flow-task__sig { color: var(--sig-migrated); }
+.m-flow-task__content { font-family: var(--font-mono); font-size: 0.7rem; color: var(--ink-mid); line-height: 1.35; }
+.m-flow-task--completed .m-flow-task__content { text-decoration: line-through; color: var(--ink-ghost); }
+
+.m-flow-highlight {
+  display: flex;
+  gap: 5px;
+  padding: 5px 7px;
+  background: var(--copper-pale);
+  border-radius: var(--r-sm);
+  margin-bottom: 6px;
+}
+.m-flow-highlight__icon { font-size: 0.65rem; color: var(--copper); }
+.m-flow-highlight__text {
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  font-style: italic;
+  color: var(--ink-mid);
+  line-height: 1.3;
+}
+
+/* ─── MOBILE BOTTOM NAV ─────────────────────────────────────── */
+.m-bottom-nav {
+  display: flex;
+  border-top: 2px solid var(--ink);
+  background: var(--cream);
+  flex-shrink: 0;
+}
+
+.m-nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 4px 14px; /* bottom padding accounts for home indicator */
+  gap: 3px;
+  cursor: pointer;
+  border: none;
+  background: none;
+  transition: background 0.1s;
+  border-right: 1px solid var(--cream-dark);
+  position: relative;
+}
+.m-nav-item:last-child { border-right: none; }
+.m-nav-item:hover { background: var(--cream-mid); }
+
+.m-nav-item.active::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 24px;
+  height: 2px;
+  background: var(--copper);
+}
+
+.m-nav-item__icon {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--ink-faint);
+}
+.m-nav-item.active .m-nav-item__icon { color: var(--ink); }
+
+.m-nav-item__label {
+  font-family: var(--font-mono);
+  font-size: 0.52rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-ghost);
+}
+.m-nav-item.active .m-nav-item__label { color: var(--ink); }
+
+/* ─── MOBILE BOTTOM SHEET ───────────────────────────────────── */
+.m-sheet-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(26,22,18,0.4);
+  z-index: 200;
+  display: none;
+  animation: backdropIn 0.2s ease;
+}
+.m-sheet-backdrop.open { display: block; }
+
+.m-sheet {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  background: var(--cream);
+  border-top: 2px solid var(--ink);
+  border-radius: 16px 16px 0 0;
+  z-index: 201;
+  display: flex;
+  flex-direction: column;
+  max-height: 75%;
+  transform: translateY(100%);
+  transition: transform 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.m-sheet.open { transform: translateY(0); }
+
+.m-sheet__handle {
+  width: 36px;
+  height: 4px;
+  background: var(--cream-dark);
+  border-radius: 2px;
+  margin: 10px auto 14px;
+  flex-shrink: 0;
+}
+
+.m-sheet__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 0 20px 12px;
+  border-bottom: 1px solid var(--cream-dark);
+  flex-shrink: 0;
+}
+.m-sheet__title {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--ink);
+}
+.m-sheet__meta {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  color: var(--ink-ghost);
+}
+
+.m-sheet__body {
+  overflow-y: auto;
+  padding: 12px 20px;
+  flex: 1;
+}
+.m-sheet__body::-webkit-scrollbar { display: none; }
+
+/* ─── MOBILE TASK DETAIL SHEET ──────────────────────────────── */
+.m-detail-sheet {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  background: var(--cream);
+  border-top: 2px solid var(--ink);
+  border-radius: 16px 16px 0 0;
+  z-index: 201;
+  display: flex;
+  flex-direction: column;
+  height: 90%;
+  transform: translateY(100%);
+  transition: transform 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.m-detail-sheet.open { transform: translateY(0); }
+
+.m-detail-sheet__handle {
+  width: 36px;
+  height: 4px;
+  background: var(--cream-dark);
+  border-radius: 2px;
+  margin: 10px auto 0;
+  flex-shrink: 0;
+}
+
+.m-detail-sheet__header {
+  padding: 14px 20px 12px;
+  border-bottom: 1px solid var(--cream-dark);
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+.m-detail-sig {
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  color: var(--sig-open);
+  flex-shrink: 0;
+  margin-top: 3px;
+  cursor: pointer;
+}
+.m-detail-title {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 500;
+  font-style: italic;
+  color: var(--ink);
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  resize: none;
+  line-height: 1.35;
+}
+.m-detail-close {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--ink-ghost);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px;
+  flex-shrink: 0;
+}
+
+.m-detail-sheet__body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.m-detail-sheet__body::-webkit-scrollbar { display: none; }
+
+.m-detail-sheet__footer {
+  padding: 12px 20px 24px;
+  border-top: 1px solid var(--cream-dark);
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-shrink: 0;
+}
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+  <!-- HEADER -->
+  <header class="header">
+    <div>
+      <span class="header__brand">bujo</span>
+      <span class="header__date-sub">sunday · march 22</span>
+    </div>
+    <div class="header__controls">
+      <div class="zoom-pills">
+        <button class="zoom-pill active" onclick="setZoom(this)">day</button>
+        <button class="zoom-pill" onclick="setZoom(this)">week</button>
+        <button class="zoom-pill" onclick="setZoom(this)">month</button>
+        <button class="zoom-pill" onclick="setZoom(this)">qtr</button>
+        <button class="zoom-pill" onclick="setZoom(this)">year</button>
+      </div>
+      <div class="sync-dot" id="syncDot" title="Synced"></div>
+      <button class="btn-ghost">lists</button>
+      <button class="btn-ghost" onclick="showMigration()">migrate</button>
+    </div>
+  </header>
+
+  <!-- VIEW TABS -->
+  <div style="padding-top:14px">
+    <div class="view-tabs">
+      <button class="view-tab active" onclick="switchView('focus', this)">focus</button>
+      <button class="view-tab" onclick="switchView('flow', this)">flow</button>
+      <button class="view-tab" onclick="switchView('ds', this)">design system</button>
+      <button class="view-tab" onclick="switchView('mobile', this)">&#9656; mobile</button>
+    </div>
+  </div>
+
+  <!-- ── FOCUS VIEW ── -->
+  <div class="view active" id="view-focus">
+    <div class="subheader">
+      <button class="subheader__arrow">&#8249;</button>
+      <div>
+        <div class="subheader__title">Sunday</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:24px">
+        <span class="subheader__meta">22 mar 2026 · W12</span>
+        <button class="subheader__arrow">&#8250;</button>
+      </div>
+    </div>
+
+    <div class="mode-selector">
+      <button class="mode-btn active">manual</button>
+      <button class="mode-btn">time·effort</button>
+      <button class="mode-btn">time·boxing</button>
+    </div>
+
+    <div class="focus-layout">
+      <div>
+        <div class="task-list">
+
+          <div class="task-item task-item--completed" onclick="openDetail()">
+            <span class="task-item__sig" onclick="event.stopPropagation();cycleStatus(this)">&#9679;</span>
+            <span class="task-item__content">Refactor sync hook to handle reconnection</span>
+            <div class="task-item__meta">
+              <span class="task-badge task-badge--time">45m</span>
+              <span class="task-badge task-badge--category">dev</span>
+            </div>
+          </div>
+
+          <div class="task-item" onclick="openDetail()">
+            <span class="task-item__sig" onclick="event.stopPropagation();cycleStatus(this)">&#9675;</span>
+            <span class="task-item__content">Write migration flow tests</span>
+            <div class="task-item__meta">
+              <span class="task-badge task-badge--time">1h</span>
+            </div>
+          </div>
+
+          <div class="task-item" onclick="openDetail()">
+            <span class="task-item__sig" onclick="event.stopPropagation();cycleStatus(this)">&#9675;</span>
+            <span class="task-item__content">Review design system proposal with Raff</span>
+            <div class="task-item__meta">
+              <span class="task-badge task-badge--category">collab</span>
+            </div>
+          </div>
+
+          <div class="task-item" onclick="openDetail()">
+            <span class="task-item__sig" onclick="event.stopPropagation();cycleStatus(this)">&#9675;</span>
+            <span class="task-item__content">Deploy preview to Vercel</span>
+            <div class="task-item__meta">
+              <span class="task-badge task-badge--time">15m</span>
+              <span class="task-badge task-badge--category">dev</span>
+            </div>
+          </div>
+
+          <div class="task-item task-item--migrated" onclick="openDetail()">
+            <span class="task-item__sig" onclick="event.stopPropagation();cycleStatus(this)">&#8250;</span>
+            <span class="task-item__content">Update CLAUDE.md with new patterns</span>
+            <div class="task-item__meta"></div>
+          </div>
+
+          <div class="task-item task-item--cancelled" onclick="openDetail()">
+            <span class="task-item__sig" onclick="event.stopPropagation();cycleStatus(this)">&#215;</span>
+            <span class="task-item__content">Draft blog post about bullet journaling</span>
+            <div class="task-item__meta"></div>
+          </div>
+
+        </div>
+
+        <div class="task-add" style="margin-top:4px">
+          <span class="task-add__sig">&#9675;</span>
+          <input class="task-add__input" placeholder="new task...">
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <div class="focus-sidebar">
+        <div class="highlight-zone">
+          <div class="highlight-zone__label">today's highlight</div>
+          <div class="highlight-zone__content">Ship the FlowView redesign and get feedback from the team</div>
+        </div>
+
+        <div class="sidebar-section">
+          <div class="sidebar-section__label">this week · W12</div>
+          <div class="sidebar-mini-task">
+            <span style="color:var(--copper)">&#9675;</span>
+            <span>Q1 planning retrospective</span>
+          </div>
+          <div class="sidebar-mini-task">
+            <span style="color:var(--copper)">&#9675;</span>
+            <span>Finalize Supabase migration schema</span>
+          </div>
+          <div class="sidebar-mini-task">
+            <span style="color:var(--sage);font-size:0.8rem">&#9679;</span>
+            <span style="text-decoration:line-through;color:var(--ink-ghost)">Set up Google Calendar sync</span>
+          </div>
+        </div>
+
+        <div class="sidebar-section">
+          <div class="sidebar-section__label">reflection</div>
+          <div style="margin-bottom:8px">
+            <div style="font-family:var(--font-mono);font-size:0.65rem;color:var(--ink-faint);margin-bottom:6px">yesterday's highlight</div>
+            <div style="font-family:var(--font-display);font-size:0.82rem;font-style:italic;color:var(--ink-mid)">Finished the period-pinning feature</div>
+          </div>
+          <div class="rating-group">
+            <button class="rating-btn good active" onclick="setRating(this)">good</button>
+            <button class="rating-btn okay" onclick="setRating(this)">okay</button>
+            <button class="rating-btn missed" onclick="setRating(this)">missed</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── FLOW VIEW ── -->
+  <div class="view" id="view-flow">
+    <div class="subheader">
+      <button class="subheader__arrow">&#8249;</button>
+      <div>
+        <div class="subheader__title">March 2026</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:24px">
+        <span class="subheader__meta">W10 – W14</span>
+        <button class="subheader__arrow">&#8250;</button>
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:stretch">
+      <div class="flow-layout" style="flex:1">
+
+        <div class="flow-col">
+          <div class="flow-col__header">
+            <div class="flow-col__title">Monday</div>
+            <div class="flow-col__subtitle">Mar 18</div>
+          </div>
+          <div class="flow-task flow-task--completed">
+            <span class="flow-task__sig">&#9679;</span>
+            <span class="flow-task__content">Team standup</span>
+          </div>
+          <div class="flow-task flow-task--completed">
+            <span class="flow-task__sig">&#9679;</span>
+            <span class="flow-task__content">Fix auth redirect bug</span>
+          </div>
+          <div class="flow-task flow-task--migrated">
+            <span class="flow-task__sig">&#8250;</span>
+            <span class="flow-task__content">Write API docs</span>
+          </div>
+          <div class="flow-add"><span class="flow-add__sig">&#9675;</span><input class="flow-add__input" placeholder="Add..."></div>
+        </div>
+
+        <div class="flow-col">
+          <div class="flow-col__header">
+            <div class="flow-col__title">Tuesday</div>
+            <div class="flow-col__subtitle">Mar 19</div>
+          </div>
+          <div class="flow-highlight">
+            <span class="flow-highlight__icon">&#9728;</span>
+            <span class="flow-highlight__text">Ship period-pinning</span>
+          </div>
+          <div class="flow-task flow-task--completed">
+            <span class="flow-task__sig">&#9679;</span>
+            <span class="flow-task__content">Period-pinning feature</span>
+          </div>
+          <div class="flow-task flow-task--completed">
+            <span class="flow-task__sig">&#9679;</span>
+            <span class="flow-task__content">PR review</span>
+          </div>
+          <div class="flow-add"><span class="flow-add__sig">&#9675;</span><input class="flow-add__input" placeholder="Add..."></div>
+        </div>
+
+        <div class="flow-col">
+          <div class="flow-col__header">
+            <div class="flow-col__title">Wednesday</div>
+            <div class="flow-col__subtitle">Mar 20</div>
+          </div>
+          <div class="flow-task flow-task--completed">
+            <span class="flow-task__sig">&#9679;</span>
+            <span class="flow-task__content">PeriodPeekSidebar</span>
+          </div>
+          <div class="flow-task">
+            <span class="flow-task__sig">&#9675;</span>
+            <span class="flow-task__content">Drag-to-day UX polish</span>
+          </div>
+          <div class="flow-add"><span class="flow-add__sig">&#9675;</span><input class="flow-add__input" placeholder="Add..."></div>
+        </div>
+
+        <div class="flow-col flow-col--current">
+          <div class="flow-col__header">
+            <div class="flow-col__title">Sunday</div>
+            <div class="flow-col__subtitle">Mar 22 · today</div>
+          </div>
+          <div class="flow-highlight">
+            <span class="flow-highlight__icon">&#9728;</span>
+            <span class="flow-highlight__text">Ship the FlowView redesign</span>
+          </div>
+          <div class="flow-task">
+            <span class="flow-task__sig">&#9675;</span>
+            <span class="flow-task__content">Write migration flow tests</span>
+          </div>
+          <div class="flow-task">
+            <span class="flow-task__sig">&#9675;</span>
+            <span class="flow-task__content">Deploy preview to Vercel</span>
+          </div>
+          <div class="flow-add"><span class="flow-add__sig">&#9675;</span><input class="flow-add__input" placeholder="Add..."></div>
+        </div>
+
+        <div class="flow-col">
+          <div class="flow-col__header">
+            <div class="flow-col__title">Monday</div>
+            <div class="flow-col__subtitle">Mar 23</div>
+          </div>
+          <div class="flow-task">
+            <span class="flow-task__sig">&#9675;</span>
+            <span class="flow-task__content">Implement CSS redesign</span>
+          </div>
+          <div class="flow-add"><span class="flow-add__sig">&#9675;</span><input class="flow-add__input" placeholder="Add..."></div>
+        </div>
+
+        <div class="flow-col">
+          <div class="flow-col__header">
+            <div class="flow-col__title">Tuesday</div>
+            <div class="flow-col__subtitle">Mar 24</div>
+          </div>
+          <div class="flow-add"><span class="flow-add__sig">&#9675;</span><input class="flow-add__input" placeholder="Add..."></div>
+        </div>
+
+        <div class="flow-col">
+          <div class="flow-col__header">
+            <div class="flow-col__title">Wednesday</div>
+            <div class="flow-col__subtitle">Mar 25</div>
+          </div>
+          <div class="flow-add"><span class="flow-add__sig">&#9675;</span><input class="flow-add__input" placeholder="Add..."></div>
+        </div>
+
+      </div>
+
+      <!-- Peek Sidebar -->
+      <div class="peek-sidebar" id="peekSidebar">
+        <button class="peek-strip" id="peekStrip" onclick="togglePeek()">
+          <span class="peek-strip__count">3</span>
+          <span>W12</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── DESIGN SYSTEM ── -->
+  <div class="view" id="view-ds">
+    <div style="padding:8px 0 32px">
+      <div style="font-family:var(--font-display);font-size:1.5rem;font-weight:500;font-style:italic;margin-bottom:4px">Design System</div>
+      <div style="font-family:var(--font-mono);font-size:0.65rem;color:var(--ink-ghost);letter-spacing:0.1em;text-transform:uppercase">bujo · typographer's field notes</div>
+    </div>
+
+    <div style="font-family:var(--font-mono);font-size:0.6rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-ghost);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--cream-dark)">Color Palette</div>
+    <div class="ds-grid" style="margin-bottom:40px">
+      <div class="ds-swatch" style="background:var(--ink);color:var(--cream)">
+        <div class="ds-swatch__name">--ink</div>
+        <div class="ds-swatch__val">#1A1612</div>
+      </div>
+      <div class="ds-swatch" style="background:var(--cream);border-color:var(--cream-dark)">
+        <div class="ds-swatch__name">--cream</div>
+        <div class="ds-swatch__val">#F6F1E7</div>
+      </div>
+      <div class="ds-swatch" style="background:var(--copper);color:var(--cream)">
+        <div class="ds-swatch__name">--copper</div>
+        <div class="ds-swatch__val">#B85C28</div>
+      </div>
+      <div class="ds-swatch" style="background:var(--sage);color:var(--cream)">
+        <div class="ds-swatch__name">--sage</div>
+        <div class="ds-swatch__val">#3D5246</div>
+      </div>
+      <div class="ds-swatch" style="background:var(--copper-pale)">
+        <div class="ds-swatch__name">--copper-pale</div>
+        <div class="ds-swatch__val">#F0DDD0</div>
+      </div>
+      <div class="ds-swatch" style="background:var(--sage-pale)">
+        <div class="ds-swatch__name">--sage-pale</div>
+        <div class="ds-swatch__val">#D6E4DE</div>
+      </div>
+    </div>
+
+    <div style="font-family:var(--font-mono);font-size:0.6rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-ghost);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--cream-dark)">Typography</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;margin-bottom:40px">
+      <div>
+        <div class="ds-type-sample">
+          <div class="ds-type-sample__label">Lora · display / headings</div>
+          <div style="font-family:var(--font-display);font-size:2rem;font-weight:500;letter-spacing:-0.02em;line-height:1.1">Sunday<br><em>March 22</em></div>
+        </div>
+        <div class="ds-type-sample">
+          <div class="ds-type-sample__label">Lora · italic / highlight content</div>
+          <div style="font-family:var(--font-display);font-style:italic;font-size:1rem;color:var(--ink-mid);line-height:1.5">Ship the FlowView redesign and get feedback from the team</div>
+        </div>
+      </div>
+      <div>
+        <div class="ds-type-sample">
+          <div class="ds-type-sample__label">JetBrains Mono · tasks / UI</div>
+          <div style="font-family:var(--font-mono);font-size:0.85rem;line-height:2.2">&#9675; Write migration flow tests<br>&#9679; Fix auth redirect bug<br>&#8250; Update CLAUDE.md<br>&#215; Blog post draft</div>
+        </div>
+        <div class="ds-type-sample">
+          <div class="ds-type-sample__label">Mono · labels / metadata</div>
+          <div style="font-family:var(--font-mono);font-size:0.6rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-ghost);line-height:2.5">today's highlight · W12 · synced · mar 22</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="font-family:var(--font-mono);font-size:0.6rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-ghost);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--cream-dark)">Signifiers</div>
+    <div style="display:flex;gap:32px;flex-wrap:wrap;margin-bottom:40px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-family:var(--font-mono);font-size:1.2rem;color:var(--sig-open)">&#9675;</span>
+        <div><div style="font-family:var(--font-mono);font-size:0.75rem">open</div><div style="font-family:var(--font-mono);font-size:0.6rem;color:var(--ink-ghost)">--ink-mid</div></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-family:var(--font-mono);font-size:1.2rem;color:var(--sig-done)">&#9679;</span>
+        <div><div style="font-family:var(--font-mono);font-size:0.75rem">completed</div><div style="font-family:var(--font-mono);font-size:0.6rem;color:var(--ink-ghost)">--sage</div></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-family:var(--font-mono);font-size:1.2rem;color:var(--sig-migrated)">&#8250;</span>
+        <div><div style="font-family:var(--font-mono);font-size:0.75rem">migrated</div><div style="font-family:var(--font-mono);font-size:0.6rem;color:var(--ink-ghost)">--copper</div></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-family:var(--font-mono);font-size:1.2rem;color:var(--sig-migrated)">&#8249;</span>
+        <div><div style="font-family:var(--font-mono);font-size:0.75rem">scheduled</div><div style="font-family:var(--font-mono);font-size:0.6rem;color:var(--ink-ghost)">--copper</div></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-family:var(--font-mono);font-size:1.2rem;color:var(--sig-cancelled)">&#215;</span>
+        <div><div style="font-family:var(--font-mono);font-size:0.75rem">cancelled</div><div style="font-family:var(--font-mono);font-size:0.6rem;color:var(--ink-ghost)">--ink-ghost</div></div>
+      </div>
+    </div>
+
+    <div style="font-family:var(--font-mono);font-size:0.6rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-ghost);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--cream-dark)">Components</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;margin-bottom:40px">
+      <div>
+        <div style="font-family:var(--font-mono);font-size:0.65rem;color:var(--ink-ghost);margin-bottom:10px">Badges</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <span class="task-badge task-badge--time">45m</span>
+          <span class="task-badge task-badge--time">1h 30m</span>
+          <span class="task-badge task-badge--category">dev</span>
+          <span class="task-badge task-badge--category">collab</span>
+          <span class="task-badge task-badge--category">personal</span>
+        </div>
+      </div>
+      <div>
+        <div style="font-family:var(--font-mono);font-size:0.65rem;color:var(--ink-ghost);margin-bottom:10px">Reflection ratings</div>
+        <div class="rating-group">
+          <button class="rating-btn good active" onclick="setRating(this)">good</button>
+          <button class="rating-btn okay" onclick="setRating(this)">okay</button>
+          <button class="rating-btn missed" onclick="setRating(this)">missed</button>
+        </div>
+      </div>
+      <div>
+        <div style="font-family:var(--font-mono);font-size:0.65rem;color:var(--ink-ghost);margin-bottom:10px">Highlight zone</div>
+        <div class="highlight-zone">
+          <div class="highlight-zone__label">today's highlight</div>
+          <div class="highlight-zone__content">Ship the FlowView redesign and get feedback</div>
+        </div>
+      </div>
+      <div>
+        <div style="font-family:var(--font-mono);font-size:0.65rem;color:var(--ink-ghost);margin-bottom:10px">Buttons</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+          <button class="btn-primary">confirm</button>
+          <button class="btn-ghost">lists</button>
+          <button class="btn-danger">delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── MOBILE VIEW ── -->
+  <div class="view" id="view-mobile">
+    <div style="padding:8px 0 24px">
+      <div style="font-family:var(--font-display);font-size:1.2rem;font-weight:500;font-style:italic;margin-bottom:4px">Mobile Adaptation</div>
+      <div style="font-family:var(--font-mono);font-size:0.65rem;color:var(--ink-ghost);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:16px">390 × 844 · iPhone scale</div>
+      <div style="font-family:var(--font-mono);font-size:0.72rem;color:var(--ink-faint);line-height:1.7;max-width:600px;margin-bottom:32px">
+        Three screens side-by-side: <strong>focus (day view)</strong>, <strong>flow view</strong>, and <strong>week sidebar bottom sheet</strong>.
+        Key changes from desktop: bottom nav replaces top tabs, signifier column widens to 44px touch target,
+        sidebar becomes a chip-triggered bottom drawer, task detail becomes a bottom sheet.
+      </div>
+    </div>
+
+    <div class="phone-frame-outer">
+
+      <!-- PHONE 1: Focus / Day View -->
+      <div>
+        <div class="phone-screen-label">focus · day view</div>
+        <div class="phone-frame">
+          <div class="phone-inner">
+
+            <!-- Mobile header -->
+            <div class="m-header">
+              <div>
+                <span class="m-header__brand">bujo</span>
+              </div>
+              <div class="m-header__date">sunday · mar 22</div>
+              <div class="m-header__actions">
+                <div class="sync-dot"></div>
+                <button class="m-icon-btn" title="Lists">&#9783;</button>
+              </div>
+            </div>
+
+            <!-- Zoom strip -->
+            <div class="m-zoom-strip">
+              <button class="m-zoom-pill active">day</button>
+              <button class="m-zoom-pill">week</button>
+              <button class="m-zoom-pill">month</button>
+              <button class="m-zoom-pill">qtr</button>
+              <button class="m-zoom-pill">year</button>
+            </div>
+
+            <!-- Date nav -->
+            <div class="m-date-nav">
+              <button class="m-nav-arrow">&#8249;</button>
+              <div style="text-align:center">
+                <div class="m-date-nav__title">Sunday</div>
+                <span class="m-date-nav__sub">22 mar 2026 · W12</span>
+              </div>
+              <button class="m-nav-arrow">&#8250;</button>
+            </div>
+
+            <!-- Mode selector -->
+            <div class="m-mode-selector">
+              <button class="m-mode-btn active">manual</button>
+              <button class="m-mode-btn">time·effort</button>
+              <button class="m-mode-btn">time·boxing</button>
+            </div>
+
+            <!-- Scroll content -->
+            <div class="m-scroll">
+
+              <!-- Highlight -->
+              <div class="m-highlight">
+                <div class="m-highlight__label">today's highlight</div>
+                <div class="m-highlight__content">Ship the FlowView redesign and get feedback from the team</div>
+              </div>
+
+              <!-- Task list -->
+              <div class="m-task-item m-task-item--completed" onclick="mOpenDetail()">
+                <div class="m-task-item__sig-wrap" onclick="event.stopPropagation()">
+                  <span class="m-task-item__sig">&#9679;</span>
+                </div>
+                <div class="m-task-item__body">
+                  <span class="m-task-item__content">Refactor sync hook</span>
+                  <div class="m-task-item__badges">
+                    <span class="task-badge task-badge--time">45m</span>
+                    <span class="task-badge task-badge--category">dev</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="m-task-item" onclick="mOpenDetail()">
+                <div class="m-task-item__sig-wrap" onclick="event.stopPropagation()">
+                  <span class="m-task-item__sig">&#9675;</span>
+                </div>
+                <div class="m-task-item__body">
+                  <span class="m-task-item__content">Write migration flow tests</span>
+                  <div class="m-task-item__badges">
+                    <span class="task-badge task-badge--time">1h</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="m-task-item" onclick="mOpenDetail()">
+                <div class="m-task-item__sig-wrap" onclick="event.stopPropagation()">
+                  <span class="m-task-item__sig">&#9675;</span>
+                </div>
+                <div class="m-task-item__body">
+                  <span class="m-task-item__content">Review design system with Raff</span>
+                  <div class="m-task-item__badges">
+                    <span class="task-badge task-badge--category">collab</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="m-task-item" onclick="mOpenDetail()">
+                <div class="m-task-item__sig-wrap" onclick="event.stopPropagation()">
+                  <span class="m-task-item__sig">&#9675;</span>
+                </div>
+                <div class="m-task-item__body">
+                  <span class="m-task-item__content">Deploy preview to Vercel</span>
+                  <div class="m-task-item__badges">
+                    <span class="task-badge task-badge--time">15m</span>
+                    <span class="task-badge task-badge--category">dev</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="m-task-item m-task-item--migrated" onclick="mOpenDetail()">
+                <div class="m-task-item__sig-wrap" onclick="event.stopPropagation()">
+                  <span class="m-task-item__sig">&#8250;</span>
+                </div>
+                <div class="m-task-item__body">
+                  <span class="m-task-item__content">Update CLAUDE.md with new patterns</span>
+                </div>
+              </div>
+
+              <div class="m-task-item m-task-item--cancelled">
+                <div class="m-task-item__sig-wrap">
+                  <span class="m-task-item__sig">&#215;</span>
+                </div>
+                <div class="m-task-item__body">
+                  <span class="m-task-item__content">Draft blog post</span>
+                </div>
+              </div>
+
+              <!-- Add task -->
+              <div class="m-task-add">
+                <div class="m-task-add__sig-wrap">
+                  <span class="m-task-add__sig">&#9675;</span>
+                </div>
+                <input class="m-task-add__input" placeholder="new task...">
+              </div>
+
+              <!-- Week peek chip -->
+              <button class="m-week-chip" onclick="mOpenSheet()">
+                <span class="m-week-chip__label">W12 · this week</span>
+                <span class="m-week-chip__count">2 open</span>
+                <span class="m-week-chip__arrow">&#8250;</span>
+              </button>
+
+              <div style="height:24px"></div>
+            </div>
+
+            <!-- Bottom nav -->
+            <div class="m-bottom-nav">
+              <button class="m-nav-item active">
+                <span class="m-nav-item__icon">&#9675;</span>
+                <span class="m-nav-item__label">focus</span>
+              </button>
+              <button class="m-nav-item">
+                <span class="m-nav-item__icon">&#9135;</span>
+                <span class="m-nav-item__label">flow</span>
+              </button>
+              <button class="m-nav-item">
+                <span class="m-nav-item__icon">&#8801;</span>
+                <span class="m-nav-item__label">lists</span>
+              </button>
+              <button class="m-nav-item">
+                <span class="m-nav-item__icon">&#8635;</span>
+                <span class="m-nav-item__label">migrate</span>
+              </button>
+            </div>
+
+            <!-- Task detail bottom sheet -->
+            <div class="m-sheet-backdrop" id="mDetailBackdrop" onclick="mCloseDetail()"></div>
+            <div class="m-detail-sheet" id="mDetailSheet">
+              <div class="m-detail-sheet__handle"></div>
+              <div class="m-detail-sheet__header">
+                <span class="m-detail-sig">&#9675;</span>
+                <textarea class="m-detail-title" rows="2">Write migration flow tests</textarea>
+                <button class="m-detail-close" onclick="mCloseDetail()">&#10005;</button>
+              </div>
+              <div class="m-detail-sheet__body">
+                <div class="detail-field">
+                  <div class="detail-field__label">description</div>
+                  <textarea class="detail-field__textarea">Cover the carry / migrate / cancel flows.</textarea>
+                </div>
+                <div class="detail-row">
+                  <div class="detail-field">
+                    <div class="detail-field__label">category</div>
+                    <input class="detail-field__input" value="dev">
+                  </div>
+                  <div class="detail-field">
+                    <div class="detail-field__label">estimate</div>
+                    <input class="detail-field__input" value="1h">
+                  </div>
+                </div>
+                <div class="detail-field">
+                  <div class="detail-field__label">subtasks</div>
+                  <div class="subtask-list">
+                    <div class="subtask-item"><input type="checkbox" checked id="ms1"><label class="subtask-item__label checked" for="ms1">Carry flow test</label></div>
+                    <div class="subtask-item"><input type="checkbox" id="ms2"><label class="subtask-item__label" for="ms2">Migrate flow test</label></div>
+                    <div class="subtask-item"><input type="checkbox" id="ms3"><label class="subtask-item__label" for="ms3">Cancel flow test</label></div>
+                  </div>
+                </div>
+              </div>
+              <div class="m-detail-sheet__footer">
+                <button class="btn-danger">delete</button>
+                <div style="flex:1"></div>
+                <button class="btn-primary" onclick="mCloseDetail()">save</button>
+              </div>
+            </div>
+
+            <!-- Week sheet -->
+            <div class="m-sheet-backdrop" id="mSheetBackdrop" onclick="mCloseSheet()"></div>
+            <div class="m-sheet" id="mWeekSheet">
+              <div class="m-sheet__handle"></div>
+              <div class="m-sheet__header">
+                <span class="m-sheet__title">W12 · this week</span>
+                <span class="m-sheet__meta">2 open · 1 done</span>
+              </div>
+              <div class="m-sheet__body">
+                <div class="m-highlight" style="margin:0 0 14px">
+                  <div class="m-highlight__label">week highlight</div>
+                  <div class="m-highlight__content">Land the new design system before Friday</div>
+                </div>
+                <div class="m-task-item">
+                  <div class="m-task-item__sig-wrap"><span class="m-task-item__sig">&#9675;</span></div>
+                  <div class="m-task-item__body"><span class="m-task-item__content">Q1 planning retrospective</span></div>
+                </div>
+                <div class="m-task-item">
+                  <div class="m-task-item__sig-wrap"><span class="m-task-item__sig">&#9675;</span></div>
+                  <div class="m-task-item__body"><span class="m-task-item__content">Finalize Supabase migration schema</span></div>
+                </div>
+                <div class="m-task-item m-task-item--completed">
+                  <div class="m-task-item__sig-wrap"><span class="m-task-item__sig">&#9679;</span></div>
+                  <div class="m-task-item__body"><span class="m-task-item__content">Set up Google Calendar sync</span></div>
+                </div>
+                <div class="m-task-add" style="margin-top:8px">
+                  <div class="m-task-add__sig-wrap"><span class="m-task-add__sig">&#9675;</span></div>
+                  <input class="m-task-add__input" placeholder="add to week...">
+                </div>
+                <div style="height:16px"></div>
+                <div style="font-family:var(--font-mono);font-size:0.6rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink-ghost);margin-bottom:8px">Reflection</div>
+                <div style="font-family:var(--font-display);font-style:italic;font-size:0.82rem;color:var(--ink-mid);margin-bottom:10px">Finished the period-pinning feature</div>
+                <div class="rating-group">
+                  <button class="rating-btn good active" onclick="setRating(this)">good</button>
+                  <button class="rating-btn okay" onclick="setRating(this)">okay</button>
+                  <button class="rating-btn missed" onclick="setRating(this)">missed</button>
+                </div>
+                <div style="height:24px"></div>
+              </div>
+            </div>
+
+          </div><!-- /phone-inner -->
+        </div><!-- /phone-frame -->
+      </div>
+
+      <!-- PHONE 2: Flow View -->
+      <div>
+        <div class="phone-screen-label">flow view</div>
+        <div class="phone-frame">
+          <div class="phone-inner">
+
+            <div class="m-header">
+              <div><span class="m-header__brand">bujo</span></div>
+              <div class="m-header__date">march 2026</div>
+              <div class="m-header__actions">
+                <div class="sync-dot"></div>
+                <button class="m-icon-btn">&#9783;</button>
+              </div>
+            </div>
+
+            <div class="m-zoom-strip">
+              <button class="m-zoom-pill">day</button>
+              <button class="m-zoom-pill active">week</button>
+              <button class="m-zoom-pill">month</button>
+              <button class="m-zoom-pill">qtr</button>
+              <button class="m-zoom-pill">year</button>
+            </div>
+
+            <div class="m-date-nav">
+              <button class="m-nav-arrow">&#8249;</button>
+              <div style="text-align:center">
+                <div class="m-date-nav__title">W10 – W14</div>
+                <span class="m-date-nav__sub">march 2026</span>
+              </div>
+              <button class="m-nav-arrow">&#8250;</button>
+            </div>
+
+            <!-- Flow columns - horizontal scroll -->
+            <div class="m-flow-scroll" style="flex:1">
+              <div class="m-flow-col">
+                <div class="m-flow-col__header">
+                  <div class="m-flow-col__title">Monday</div>
+                  <div class="m-flow-col__subtitle">Mar 18</div>
+                </div>
+                <div class="m-flow-task m-flow-task--completed">
+                  <span class="m-flow-task__sig">&#9679;</span>
+                  <span class="m-flow-task__content">Team standup</span>
+                </div>
+                <div class="m-flow-task m-flow-task--completed">
+                  <span class="m-flow-task__sig">&#9679;</span>
+                  <span class="m-flow-task__content">Fix auth bug</span>
+                </div>
+                <div class="m-flow-task m-flow-task--migrated">
+                  <span class="m-flow-task__sig">&#8250;</span>
+                  <span class="m-flow-task__content">Write API docs</span>
+                </div>
+              </div>
+
+              <div class="m-flow-col">
+                <div class="m-flow-col__header">
+                  <div class="m-flow-col__title">Tuesday</div>
+                  <div class="m-flow-col__subtitle">Mar 19</div>
+                </div>
+                <div class="m-flow-highlight">
+                  <span class="m-flow-highlight__icon">&#9728;</span>
+                  <span class="m-flow-highlight__text">Ship period-pinning</span>
+                </div>
+                <div class="m-flow-task m-flow-task--completed">
+                  <span class="m-flow-task__sig">&#9679;</span>
+                  <span class="m-flow-task__content">Period-pinning</span>
+                </div>
+                <div class="m-flow-task m-flow-task--completed">
+                  <span class="m-flow-task__sig">&#9679;</span>
+                  <span class="m-flow-task__content">PR review</span>
+                </div>
+              </div>
+
+              <div class="m-flow-col m-flow-col--current">
+                <div class="m-flow-col__header">
+                  <div class="m-flow-col__title">Sunday</div>
+                  <div class="m-flow-col__subtitle">Mar 22 · today</div>
+                </div>
+                <div class="m-flow-highlight">
+                  <span class="m-flow-highlight__icon">&#9728;</span>
+                  <span class="m-flow-highlight__text">Ship FlowView redesign</span>
+                </div>
+                <div class="m-flow-task">
+                  <span class="m-flow-task__sig">&#9675;</span>
+                  <span class="m-flow-task__content">Migration flow tests</span>
+                </div>
+                <div class="m-flow-task">
+                  <span class="m-flow-task__sig">&#9675;</span>
+                  <span class="m-flow-task__content">Deploy to Vercel</span>
+                </div>
+              </div>
+
+              <div class="m-flow-col">
+                <div class="m-flow-col__header">
+                  <div class="m-flow-col__title">Monday</div>
+                  <div class="m-flow-col__subtitle">Mar 23</div>
+                </div>
+                <div class="m-flow-task">
+                  <span class="m-flow-task__sig">&#9675;</span>
+                  <span class="m-flow-task__content">Implement CSS</span>
+                </div>
+              </div>
+
+              <div class="m-flow-col">
+                <div class="m-flow-col__header">
+                  <div class="m-flow-col__title">Tuesday</div>
+                  <div class="m-flow-col__subtitle">Mar 24</div>
+                </div>
+              </div>
+
+              <div class="m-flow-col">
+                <div class="m-flow-col__header">
+                  <div class="m-flow-col__title">Wednesday</div>
+                  <div class="m-flow-col__subtitle">Mar 25</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Period peek chip at bottom -->
+            <div style="border-top:1px solid var(--cream-dark);padding:8px 20px;flex-shrink:0;background:var(--cream)">
+              <button class="m-week-chip" style="margin:0;width:100%" onclick="mOpenMarchSheet()">
+                <span class="m-week-chip__label">March · period tasks</span>
+                <span class="m-week-chip__count">3 open</span>
+                <span class="m-week-chip__arrow">&#8679;</span>
+              </button>
+            </div>
+
+            <div class="m-bottom-nav">
+              <button class="m-nav-item">
+                <span class="m-nav-item__icon">&#9675;</span>
+                <span class="m-nav-item__label">focus</span>
+              </button>
+              <button class="m-nav-item active">
+                <span class="m-nav-item__icon">&#9135;</span>
+                <span class="m-nav-item__label">flow</span>
+              </button>
+              <button class="m-nav-item">
+                <span class="m-nav-item__icon">&#8801;</span>
+                <span class="m-nav-item__label">lists</span>
+              </button>
+              <button class="m-nav-item">
+                <span class="m-nav-item__icon">&#8635;</span>
+                <span class="m-nav-item__label">migrate</span>
+              </button>
+            </div>
+
+            <!-- Period sheet (replaces peek sidebar) -->
+            <div class="m-sheet-backdrop" id="mMarchBackdrop" onclick="mCloseMarchSheet()"></div>
+            <div class="m-sheet" id="mMarchSheet">
+              <div class="m-sheet__handle"></div>
+              <div class="m-sheet__header">
+                <span class="m-sheet__title">March</span>
+                <span class="m-sheet__meta">3 open · 2 done</span>
+              </div>
+              <div class="m-sheet__body">
+                <div class="m-highlight" style="margin:0 0 12px">
+                  <div class="m-highlight__label">month highlight</div>
+                  <div class="m-highlight__content">Ship the new design system and get it deployed</div>
+                </div>
+                <div class="m-task-item">
+                  <div class="m-task-item__sig-wrap"><span class="m-task-item__sig" style="color:var(--copper)">&#8250;</span></div>
+                  <div class="m-task-item__body"><span class="m-task-item__content">Q1 planning retro</span></div>
+                </div>
+                <div class="m-task-item">
+                  <div class="m-task-item__sig-wrap"><span class="m-task-item__sig">&#9675;</span></div>
+                  <div class="m-task-item__body"><span class="m-task-item__content">Finalize Supabase schema</span></div>
+                </div>
+                <div class="m-task-item">
+                  <div class="m-task-item__sig-wrap"><span class="m-task-item__sig">&#9675;</span></div>
+                  <div class="m-task-item__body"><span class="m-task-item__content">Ship CSS redesign</span></div>
+                </div>
+                <div class="m-task-add" style="margin-top:8px">
+                  <div class="m-task-add__sig-wrap"><span class="m-task-add__sig">&#9675;</span></div>
+                  <input class="m-task-add__input" placeholder="add to march...">
+                </div>
+                <div style="height:24px"></div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- ANNOTATIONS PANEL -->
+      <div style="flex-shrink:0;width:280px;padding-top:34px">
+        <div style="font-family:var(--font-mono);font-size:0.6rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-ghost);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--cream-dark)">Design decisions</div>
+        <div style="display:flex;flex-direction:column;gap:20px">
+
+          <div>
+            <div style="font-family:var(--font-mono);font-size:0.7rem;font-weight:500;color:var(--ink);margin-bottom:4px">&#8627; bottom nav</div>
+            <div style="font-family:var(--font-mono);font-size:0.68rem;color:var(--ink-faint);line-height:1.6">View tabs move from top to bottom. Copper top-line marker on active tab — mirrors the flow column treatment. 4 tabs: focus · flow · lists · migrate.</div>
+          </div>
+
+          <div>
+            <div style="font-family:var(--font-mono);font-size:0.7rem;font-weight:500;color:var(--ink);margin-bottom:4px">&#8627; 44px signifier target</div>
+            <div style="font-family:var(--font-mono);font-size:0.68rem;color:var(--ink-faint);line-height:1.6">Signifier column widens from 20px to 44px with a vertical divider — isolating the cycle-status tap from the open-detail tap. Meets WCAG 2.5.5 target size.</div>
+          </div>
+
+          <div>
+            <div style="font-family:var(--font-mono);font-size:0.7rem;font-weight:500;color:var(--ink);margin-bottom:4px">&#8627; sidebar &#8594; bottom sheet</div>
+            <div style="font-family:var(--font-mono);font-size:0.68rem;color:var(--ink-faint);line-height:1.6">The W12 sidebar chip at the bottom of the task list opens a sheet. This preserves the passive context of the desktop sidebar behind a single intentional tap.</div>
+          </div>
+
+          <div>
+            <div style="font-family:var(--font-mono);font-size:0.7rem;font-weight:500;color:var(--ink);margin-bottom:4px">&#8627; flow peek &#8594; bottom chip</div>
+            <div style="font-family:var(--font-mono);font-size:0.68rem;color:var(--ink-faint);line-height:1.6">The vertical peek sidebar strip becomes a persistent bottom chip above the nav bar. The up-arrow (↑) signals it expands upward. Period tasks slide up in a sheet.</div>
+          </div>
+
+          <div>
+            <div style="font-family:var(--font-mono);font-size:0.7rem;font-weight:500;color:var(--ink);margin-bottom:4px">&#8627; task detail sheet</div>
+            <div style="font-family:var(--font-mono);font-size:0.68rem;color:var(--ink-faint);line-height:1.6">Replaces the side panel — slides up to 90% height. Drag handle at top affords swipe-to-dismiss. Fields stack vertically (no 2-column grid on narrow screens).</div>
+          </div>
+
+          <div>
+            <div style="font-family:var(--font-mono);font-size:0.7rem;font-weight:500;color:var(--ink);margin-bottom:4px">&#8627; zoom strip</div>
+            <div style="font-family:var(--font-mono);font-size:0.68rem;color:var(--ink-faint);line-height:1.6">Zoom pills move below the header as a horizontally scrollable strip with pill-style buttons — no borders, just the active pill fills to ink.</div>
+          </div>
+
+          <div>
+            <div style="font-family:var(--font-mono);font-size:0.7rem;font-weight:500;color:var(--ink);margin-bottom:4px">&#8627; what stays the same</div>
+            <div style="font-family:var(--font-mono);font-size:0.68rem;color:var(--ink-faint);line-height:1.6">Flow view horizontal scroll is natural on touch. Highlight zone, signifier symbols, typography, and color tokens are identical — mobile is not a redesign, just a layout remap.</div>
+          </div>
+
+        </div>
+      </div>
+
+    </div><!-- /phone-frame-outer -->
+  </div><!-- /view-mobile -->
+
+</div><!-- /shell -->
+
+
+<!-- ── MIGRATION OVERLAY ── -->
+<div class="overlay-backdrop" id="migrationOverlay" style="display:none" onclick="if(event.target===this)hideMigration()">
+  <div class="migration-modal" onclick="event.stopPropagation()">
+    <div class="migration-modal__header">
+      <div class="migration-modal__eyebrow">Daily migration</div>
+      <div class="migration-modal__title">Yesterday's open tasks</div>
+      <div class="migration-modal__subtitle">Saturday, March 21 · 3 open tasks</div>
+    </div>
+
+    <div class="migration-modal__body">
+      <div class="migration-task" id="mt1">
+        <span class="migration-task__sig">&#9675;</span>
+        <span class="migration-task__content">Update CLAUDE.md with new patterns</span>
+        <div class="migration-task__actions">
+          <button class="migration-action migration-action--carry">carry</button>
+          <button class="migration-action migration-action--migrate" onclick="migrateTask('mt1')">migrate &#8594;</button>
+          <button class="migration-action" onclick="cancelTask('mt1')">&#215;</button>
+        </div>
+      </div>
+      <div class="migration-task" id="mt2">
+        <span class="migration-task__sig">&#9675;</span>
+        <span class="migration-task__content">Draft Q2 planning doc</span>
+        <div class="migration-task__actions">
+          <button class="migration-action migration-action--carry">carry</button>
+          <button class="migration-action migration-action--migrate" onclick="migrateTask('mt2')">migrate &#8594;</button>
+          <button class="migration-action" onclick="cancelTask('mt2')">&#215;</button>
+        </div>
+      </div>
+      <div class="migration-task" id="mt3">
+        <span class="migration-task__sig">&#9675;</span>
+        <span class="migration-task__content">Read through new PRs from team</span>
+        <div class="migration-task__actions">
+          <button class="migration-action migration-action--carry">carry</button>
+          <button class="migration-action migration-action--migrate" onclick="migrateTask('mt3')">migrate &#8594;</button>
+          <button class="migration-action" onclick="cancelTask('mt3')">&#215;</button>
+        </div>
+      </div>
+
+      <div style="margin-top:20px;padding-top:20px;border-top:1px solid var(--cream-dark)">
+        <div style="font-family:var(--font-mono);font-size:0.6rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-ghost);margin-bottom:10px">Yesterday's highlight</div>
+        <div style="font-family:var(--font-display);font-style:italic;font-size:0.95rem;color:var(--ink-mid);margin-bottom:12px">Finished the period-pinning feature</div>
+        <div style="font-family:var(--font-mono);font-size:0.65rem;color:var(--ink-faint);margin-bottom:8px">How did it go?</div>
+        <div class="rating-group">
+          <button class="rating-btn good active" onclick="setRating(this)">good</button>
+          <button class="rating-btn okay" onclick="setRating(this)">okay</button>
+          <button class="rating-btn missed" onclick="setRating(this)">missed</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="migration-modal__footer">
+      <span class="migration-modal__progress" id="migrateProgress">3 tasks remaining</span>
+      <button class="btn-primary" onclick="hideMigration()">done — start today</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ── TASK DETAIL OVERLAY ── -->
+<div class="task-detail-overlay" id="taskDetailOverlay" style="display:none" onclick="if(event.target===this)hideDetail()">
+  <div class="task-detail-panel" onclick="event.stopPropagation()">
+    <div class="task-detail-panel__header">
+      <span class="task-detail-panel__sig" id="detailSig" onclick="cycleDetailSig()">&#9675;</span>
+      <textarea class="task-detail-panel__title" rows="2">Write migration flow tests</textarea>
+      <button class="task-detail-panel__close" onclick="hideDetail()">&#10005;</button>
+    </div>
+
+    <div class="task-detail-panel__body">
+      <div class="detail-field">
+        <div class="detail-field__label">description</div>
+        <textarea class="detail-field__textarea">Cover the carry / migrate / cancel flows. Also check the highlight reflection rating persistence.</textarea>
+      </div>
+
+      <div class="detail-row">
+        <div class="detail-field">
+          <div class="detail-field__label">category</div>
+          <input class="detail-field__input" value="dev">
+        </div>
+        <div class="detail-field">
+          <div class="detail-field__label">time estimate</div>
+          <input class="detail-field__input" value="1h">
+        </div>
+      </div>
+
+      <div class="detail-row">
+        <div class="detail-field">
+          <div class="detail-field__label">planned start</div>
+          <input class="detail-field__input" type="date" value="2026-03-22">
+        </div>
+        <div class="detail-field">
+          <div class="detail-field__label">deadline</div>
+          <input class="detail-field__input" type="date">
+        </div>
+      </div>
+
+      <div class="detail-field">
+        <div class="detail-field__label">subtasks</div>
+        <div class="subtask-list">
+          <div class="subtask-item">
+            <input type="checkbox" checked id="st1">
+            <label class="subtask-item__label checked" for="st1">Carry flow test</label>
+          </div>
+          <div class="subtask-item">
+            <input type="checkbox" id="st2">
+            <label class="subtask-item__label" for="st2">Migrate flow test</label>
+          </div>
+          <div class="subtask-item">
+            <input type="checkbox" id="st3">
+            <label class="subtask-item__label" for="st3">Cancel flow test</label>
+          </div>
+          <div class="subtask-item">
+            <input type="checkbox" id="st4">
+            <label class="subtask-item__label" for="st4">Reflection rating persistence</label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="task-detail-panel__footer">
+      <button class="btn-danger">delete task</button>
+      <div style="flex:1"></div>
+      <button class="btn-primary" onclick="hideDetail()">save</button>
+    </div>
+  </div>
+</div>
+
+
+<script>
+// View switching
+function switchView(name, btn) {
+  document.querySelectorAll('.view').forEach(function(v) { v.classList.remove('active'); });
+  document.querySelectorAll('.view-tab').forEach(function(b) { b.classList.remove('active'); });
+  document.getElementById('view-' + name).classList.add('active');
+  btn.classList.add('active');
+}
+
+// Migration overlay
+function showMigration() { document.getElementById('migrationOverlay').style.display = 'flex'; }
+function hideMigration() { document.getElementById('migrationOverlay').style.display = 'none'; }
+
+// Task detail overlay
+function openDetail() { document.getElementById('taskDetailOverlay').style.display = 'flex'; }
+function hideDetail()  { document.getElementById('taskDetailOverlay').style.display = 'none'; }
+
+// Status cycle on task rows
+var STATUSES = ['open','completed','migrated','cancelled'];
+var SIGS = { open:'&#9675;', completed:'&#9679;', migrated:'&#8250;', cancelled:'&#215;' };
+function cycleStatus(sigEl) {
+  var row = sigEl.closest('.task-item');
+  var current = 'open';
+  STATUSES.forEach(function(s) {
+    if (row.classList.contains('task-item--' + s)) current = s;
+  });
+  var next = STATUSES[(STATUSES.indexOf(current) + 1) % STATUSES.length];
+  STATUSES.forEach(function(s) { row.classList.remove('task-item--' + s); });
+  if (next !== 'open') row.classList.add('task-item--' + next);
+  sigEl.innerHTML = SIGS[next];
+}
+
+// Detail sig cycle
+var DETAIL_SIGS_ARR = ['&#9675;','&#9679;','&#8250;','&#215;'];
+var detailSigIdx = 0;
+function cycleDetailSig() {
+  detailSigIdx = (detailSigIdx + 1) % DETAIL_SIGS_ARR.length;
+  document.getElementById('detailSig').innerHTML = DETAIL_SIGS_ARR[detailSigIdx];
+}
+
+// Migration actions
+var migrateCount = 3;
+function migrateTask(id) {
+  var row = document.getElementById(id);
+  row.style.opacity = '0.4';
+  row.style.transition = 'opacity 0.2s';
+  var actions = row.querySelector('.migration-task__actions');
+  actions.textContent = '';
+  var span = document.createElement('span');
+  span.style.cssText = 'font-family:var(--font-mono);font-size:0.6rem;color:var(--copper)';
+  span.textContent = '> migrated';
+  actions.appendChild(span);
+  updateMigrateCount();
+}
+function cancelTask(id) {
+  var row = document.getElementById(id);
+  row.style.opacity = '0.3';
+  row.style.transition = 'opacity 0.2s';
+  row.querySelector('.migration-task__sig').textContent = 'x';
+  var actions = row.querySelector('.migration-task__actions');
+  actions.textContent = '';
+  var span = document.createElement('span');
+  span.style.cssText = 'font-family:var(--font-mono);font-size:0.6rem;color:var(--ink-ghost)';
+  span.textContent = 'cancelled';
+  actions.appendChild(span);
+  updateMigrateCount();
+}
+function updateMigrateCount() {
+  migrateCount = Math.max(0, migrateCount - 1);
+  document.getElementById('migrateProgress').textContent = migrateCount + ' task' + (migrateCount === 1 ? '' : 's') + ' remaining';
+}
+
+// Rating buttons
+function setRating(btn) {
+  var group = btn.closest('.rating-group');
+  group.querySelectorAll('.rating-btn').forEach(function(b) { b.classList.remove('active'); });
+  btn.classList.add('active');
+}
+
+// Zoom pills
+function setZoom(pill) {
+  pill.closest('.zoom-pills').querySelectorAll('.zoom-pill').forEach(function(p) { p.classList.remove('active'); });
+  pill.classList.add('active');
+}
+
+// Mode buttons
+document.querySelectorAll('.mode-btn').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.mode-btn').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+  });
+});
+
+// Peek sidebar
+var peekOpen = false;
+function togglePeek() {
+  peekOpen = !peekOpen;
+  var sb = document.getElementById('peekSidebar');
+  var strip = document.getElementById('peekStrip');
+
+  if (peekOpen) {
+    sb.classList.add('peek-sidebar--open');
+    strip.style.display = 'none';
+
+    var panel = document.createElement('div');
+    panel.className = 'peek-panel';
+    panel.id = 'peekPanel';
+
+    var header = document.createElement('div');
+    header.className = 'peek-panel__header';
+
+    var title = document.createElement('span');
+    title.className = 'peek-panel__title';
+    title.textContent = 'W12';
+
+    var closeBtn = document.createElement('button');
+    closeBtn.className = 'peek-close';
+    closeBtn.textContent = 'collapse x';
+    closeBtn.onclick = togglePeek;
+
+    header.appendChild(title);
+    header.appendChild(closeBtn);
+    panel.appendChild(header);
+
+    var tasks = [
+      { sig: '>', content: 'Q1 planning retro', done: false },
+      { sig: 'o', content: 'Finalize Supabase schema', done: false },
+      { sig: 'o', content: 'Ship CSS redesign', done: false }
+    ];
+
+    tasks.forEach(function(t) {
+      var row = document.createElement('div');
+      row.className = 'flow-task';
+      var sig = document.createElement('span');
+      sig.className = 'flow-task__sig';
+      sig.style.color = t.sig === '>' ? 'var(--copper)' : 'var(--sig-open)';
+      sig.textContent = t.sig === '>' ? '\u203a' : '\u25cb';
+      var content = document.createElement('span');
+      content.className = 'flow-task__content';
+      content.textContent = t.content;
+      row.appendChild(sig);
+      row.appendChild(content);
+      panel.appendChild(row);
+    });
+
+    var spacer = document.createElement('div');
+    spacer.style.height = '16px';
+    panel.appendChild(spacer);
+
+    var hl = document.createElement('div');
+    hl.className = 'flow-highlight';
+    var hlIcon = document.createElement('span');
+    hlIcon.className = 'flow-highlight__icon';
+    hlIcon.textContent = '\u2600';
+    var hlText = document.createElement('span');
+    hlText.className = 'flow-highlight__text';
+    hlText.textContent = 'Land the new design system before Friday';
+    hl.appendChild(hlIcon);
+    hl.appendChild(hlText);
+    panel.appendChild(hl);
+
+    sb.appendChild(panel);
+  } else {
+    sb.classList.remove('peek-sidebar--open');
+    strip.style.display = '';
+    var existingPanel = document.getElementById('peekPanel');
+    if (existingPanel) existingPanel.remove();
+  }
+}
+
+// Subtask checkboxes
+document.querySelectorAll('.subtask-item input[type="checkbox"]').forEach(function(cb) {
+  cb.addEventListener('change', function() {
+    var label = document.querySelector('label[for="' + cb.id + '"]');
+    if (label) label.classList.toggle('checked', cb.checked);
+  });
+});
+
+// Simulate sync pulse on load
+setTimeout(function() {
+  var dot = document.getElementById('syncDot');
+  dot.classList.add('syncing');
+  setTimeout(function() { dot.classList.remove('syncing'); }, 1800);
+}, 1200);
+
+// ── MOBILE INTERACTIONS ──────────────────────────────────────
+
+function mOpenDetail() {
+  document.getElementById('mDetailBackdrop').classList.add('open');
+  document.getElementById('mDetailSheet').classList.add('open');
+}
+function mCloseDetail() {
+  document.getElementById('mDetailBackdrop').classList.remove('open');
+  document.getElementById('mDetailSheet').classList.remove('open');
+}
+
+function mOpenSheet() {
+  document.getElementById('mSheetBackdrop').classList.add('open');
+  document.getElementById('mWeekSheet').classList.add('open');
+}
+function mCloseSheet() {
+  document.getElementById('mSheetBackdrop').classList.remove('open');
+  document.getElementById('mWeekSheet').classList.remove('open');
+}
+
+function mOpenMarchSheet() {
+  document.getElementById('mMarchBackdrop').classList.add('open');
+  document.getElementById('mMarchSheet').classList.add('open');
+}
+function mCloseMarchSheet() {
+  document.getElementById('mMarchBackdrop').classList.remove('open');
+  document.getElementById('mMarchSheet').classList.remove('open');
+}
+
+// Mobile subtask checkboxes
+document.querySelectorAll('.m-detail-sheet input[type="checkbox"]').forEach(function(cb) {
+  cb.addEventListener('change', function() {
+    var label = document.querySelector('label[for="' + cb.id + '"]');
+    if (label) label.classList.toggle('checked', cb.checked);
+  });
+});
+</script>
+</body>
+</html>

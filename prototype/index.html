@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>bujo — focus view</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="prototype.css">
+</head>
+<body>
+
+<div class="shell">
+
+  <!-- HEADER -->
+  <header class="header">
+    <div>
+      <span class="header__brand">bujo</span>
+      <span class="header__date-sub">sunday · march 22</span>
+    </div>
+    <div class="header__controls">
+      <div class="zoom-pills">
+        <button class="zoom-pill active" onclick="setZoom(this)">day</button>
+        <button class="zoom-pill" onclick="setZoom(this)">week</button>
+        <button class="zoom-pill" onclick="setZoom(this)">month</button>
+        <button class="zoom-pill" onclick="setZoom(this)">qtr</button>
+        <button class="zoom-pill" onclick="setZoom(this)">year</button>
+      </div>
+      <div class="sync-dot" id="syncDot" title="Synced"></div>
+      <button class="btn-ghost">lists</button>
+      <button class="btn-ghost" onclick="showMigration()">migrate</button>
+    </div>
+  </header>
+
+  <!-- VIEW TABS -->
+  <div style="padding-top:14px">
+    <nav class="view-tabs">
+      <a href="index.html" class="view-tab active">focus</a>
+      <a href="flow.html" class="view-tab">flow</a>
+      <a href="design-system.html" class="view-tab">design system</a>
+      <a href="mobile.html" class="view-tab">&#9656; mobile</a>
+    </nav>
+  </div>
+
+  <!-- ── FOCUS VIEW ── -->
+  <div class="view" id="view-focus">
+    <div class="subheader">
+      <button class="subheader__arrow">&#8249;</button>
+      <div>
+        <div class="subheader__title">Sunday</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:24px">
+        <span class="subheader__meta">22 mar 2026 · W12</span>
+        <button class="subheader__arrow">&#8250;</button>
+      </div>
+    </div>
+
+    <div class="mode-selector">
+      <button class="mode-btn active">manual</button>
+      <button class="mode-btn">time·effort</button>
+      <button class="mode-btn">time·boxing</button>
+    </div>
+
+    <div class="focus-layout">
+      <div>
+        <div class="task-list">
+
+          <div class="task-item task-item--completed" onclick="openDetail()">
+            <span class="task-item__sig" onclick="event.stopPropagation();cycleStatus(this)">&#9679;</span>
+            <span class="task-item__content">Refactor sync hook to handle reconnection</span>
+            <div class="task-item__meta">
+              <span class="task-badge task-badge--time">45m</span>
+              <span class="task-badge task-badge--category">dev</span>
+            </div>
+          </div>
+
+          <div class="task-item" onclick="openDetail()">
+            <span class="task-item__sig" onclick="event.stopPropagation();cycleStatus(this)">&#9675;</span>
+            <span class="task-item__content">Write migration flow tests</span>
+            <div class="task-item__meta">
+              <span class="task-badge task-badge--time">1h</span>
+            </div>
+          </div>
+
+          <div class="task-item" onclick="openDetail()">
+            <span class="task-item__sig" onclick="event.stopPropagation();cycleStatus(this)">&#9675;</span>
+            <span class="task-item__content">Review design system proposal with Raff</span>
+            <div class="task-item__meta">
+              <span class="task-badge task-badge--category">collab</span>
+            </div>
+          </div>
+
+          <div class="task-item" onclick="openDetail()">
+            <span class="task-item__sig" onclick="event.stopPropagation();cycleStatus(this)">&#9675;</span>
+            <span class="task-item__content">Deploy preview to Vercel</span>
+            <div class="task-item__meta">
+              <span class="task-badge task-badge--time">15m</span>
+              <span class="task-badge task-badge--category">dev</span>
+            </div>
+          </div>
+
+          <div class="task-item task-item--migrated" onclick="openDetail()">
+            <span class="task-item__sig" onclick="event.stopPropagation();cycleStatus(this)">&#8250;</span>
+            <span class="task-item__content">Update CLAUDE.md with new patterns</span>
+            <div class="task-item__meta"></div>
+          </div>
+
+          <div class="task-item task-item--cancelled" onclick="openDetail()">
+            <span class="task-item__sig" onclick="event.stopPropagation();cycleStatus(this)">&#215;</span>
+            <span class="task-item__content">Draft blog post about bullet journaling</span>
+            <div class="task-item__meta"></div>
+          </div>
+
+        </div>
+
+        <div class="task-add" style="margin-top:4px">
+          <span class="task-add__sig">&#9675;</span>
+          <input class="task-add__input" placeholder="new task...">
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <div class="focus-sidebar">
+        <div class="highlight-zone">
+          <div class="highlight-zone__label">today's highlight</div>
+          <div class="highlight-zone__content">Ship the FlowView redesign and get feedback from the team</div>
+        </div>
+
+        <div class="sidebar-section">
+          <div class="sidebar-section__label">this week · W12</div>
+          <div class="sidebar-mini-task">
+            <span style="color:var(--copper)">&#9675;</span>
+            <span>Q1 planning retrospective</span>
+          </div>
+          <div class="sidebar-mini-task">
+            <span style="color:var(--copper)">&#9675;</span>
+            <span>Finalize Supabase migration schema</span>
+          </div>
+          <div class="sidebar-mini-task">
+            <span style="color:var(--sage);font-size:0.8rem">&#9679;</span>
+            <span style="text-decoration:line-through;color:var(--ink-ghost)">Set up Google Calendar sync</span>
+          </div>
+        </div>
+
+        <div class="sidebar-section">
+          <div class="sidebar-section__label">reflection</div>
+          <div style="margin-bottom:8px">
+            <div style="font-family:var(--font-mono);font-size:0.65rem;color:var(--ink-faint);margin-bottom:6px">yesterday's highlight</div>
+            <div style="font-family:var(--font-display);font-size:0.82rem;font-style:italic;color:var(--ink-mid)">Finished the period-pinning feature</div>
+          </div>
+          <div class="rating-group">
+            <button class="rating-btn good active" onclick="setRating(this)">good</button>
+            <button class="rating-btn okay" onclick="setRating(this)">okay</button>
+            <button class="rating-btn missed" onclick="setRating(this)">missed</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /shell -->
+
+
+<!-- ── MIGRATION OVERLAY ── -->
+<div class="overlay-backdrop" id="migrationOverlay" style="display:none" onclick="if(event.target===this)hideMigration()">
+  <div class="migration-modal" onclick="event.stopPropagation()">
+    <div class="migration-modal__header">
+      <div class="migration-modal__eyebrow">Daily migration</div>
+      <div class="migration-modal__title">Yesterday's open tasks</div>
+      <div class="migration-modal__subtitle">Saturday, March 21 · 3 open tasks</div>
+    </div>
+
+    <div class="migration-modal__body">
+      <div class="migration-task" id="mt1">
+        <span class="migration-task__sig">&#9675;</span>
+        <span class="migration-task__content">Update CLAUDE.md with new patterns</span>
+        <div class="migration-task__actions">
+          <button class="migration-action migration-action--carry">carry</button>
+          <button class="migration-action migration-action--migrate" onclick="migrateTask('mt1')">migrate &#8594;</button>
+          <button class="migration-action" onclick="cancelTask('mt1')">&#215;</button>
+        </div>
+      </div>
+      <div class="migration-task" id="mt2">
+        <span class="migration-task__sig">&#9675;</span>
+        <span class="migration-task__content">Draft Q2 planning doc</span>
+        <div class="migration-task__actions">
+          <button class="migration-action migration-action--carry">carry</button>
+          <button class="migration-action migration-action--migrate" onclick="migrateTask('mt2')">migrate &#8594;</button>
+          <button class="migration-action" onclick="cancelTask('mt2')">&#215;</button>
+        </div>
+      </div>
+      <div class="migration-task" id="mt3">
+        <span class="migration-task__sig">&#9675;</span>
+        <span class="migration-task__content">Read through new PRs from team</span>
+        <div class="migration-task__actions">
+          <button class="migration-action migration-action--carry">carry</button>
+          <button class="migration-action migration-action--migrate" onclick="migrateTask('mt3')">migrate &#8594;</button>
+          <button class="migration-action" onclick="cancelTask('mt3')">&#215;</button>
+        </div>
+      </div>
+
+      <div style="margin-top:20px;padding-top:20px;border-top:1px solid var(--cream-dark)">
+        <div style="font-family:var(--font-mono);font-size:0.6rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-ghost);margin-bottom:10px">Yesterday's highlight</div>
+        <div style="font-family:var(--font-display);font-style:italic;font-size:0.95rem;color:var(--ink-mid);margin-bottom:12px">Finished the period-pinning feature</div>
+        <div style="font-family:var(--font-mono);font-size:0.65rem;color:var(--ink-faint);margin-bottom:8px">How did it go?</div>
+        <div class="rating-group">
+          <button class="rating-btn good active" onclick="setRating(this)">good</button>
+          <button class="rating-btn okay" onclick="setRating(this)">okay</button>
+          <button class="rating-btn missed" onclick="setRating(this)">missed</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="migration-modal__footer">
+      <span class="migration-modal__progress" id="migrateProgress">3 tasks remaining</span>
+      <button class="btn-primary" onclick="hideMigration()">done — start today</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ── TASK DETAIL OVERLAY ── -->
+<div class="task-detail-overlay" id="taskDetailOverlay" style="display:none" onclick="if(event.target===this)hideDetail()">
+  <div class="task-detail-panel" onclick="event.stopPropagation()">
+    <div class="task-detail-panel__header">
+      <span class="task-detail-panel__sig" id="detailSig" onclick="cycleDetailSig()">&#9675;</span>
+      <textarea class="task-detail-panel__title" rows="2">Write migration flow tests</textarea>
+      <button class="task-detail-panel__close" onclick="hideDetail()">&#10005;</button>
+    </div>
+
+    <div class="task-detail-panel__body">
+      <div class="detail-field">
+        <div class="detail-field__label">description</div>
+        <textarea class="detail-field__textarea">Cover the carry / migrate / cancel flows. Also check the highlight reflection rating persistence.</textarea>
+      </div>
+
+      <div class="detail-row">
+        <div class="detail-field">
+          <div class="detail-field__label">category</div>
+          <input class="detail-field__input" value="dev">
+        </div>
+        <div class="detail-field">
+          <div class="detail-field__label">time estimate</div>
+          <input class="detail-field__input" value="1h">
+        </div>
+      </div>
+
+      <div class="detail-row">
+        <div class="detail-field">
+          <div class="detail-field__label">planned start</div>
+          <input class="detail-field__input" type="date" value="2026-03-22">
+        </div>
+        <div class="detail-field">
+          <div class="detail-field__label">deadline</div>
+          <input class="detail-field__input" type="date">
+        </div>
+      </div>
+
+      <div class="detail-field">
+        <div class="detail-field__label">subtasks</div>
+        <div class="subtask-list">
+          <div class="subtask-item">
+            <input type="checkbox" checked id="st1">
+            <label class="subtask-item__label checked" for="st1">Carry flow test</label>
+          </div>
+          <div class="subtask-item">
+            <input type="checkbox" id="st2">
+            <label class="subtask-item__label" for="st2">Migrate flow test</label>
+          </div>
+          <div class="subtask-item">
+            <input type="checkbox" id="st3">
+            <label class="subtask-item__label" for="st3">Cancel flow test</label>
+          </div>
+          <div class="subtask-item">
+            <input type="checkbox" id="st4">
+            <label class="subtask-item__label" for="st4">Reflection rating persistence</label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="task-detail-panel__footer">
+      <button class="btn-danger">delete task</button>
+      <div style="flex:1"></div>
+      <button class="btn-primary" onclick="hideDetail()">save</button>
+    </div>
+  </div>
+</div>
+
+<script src="prototype.js" defer></script>
+</body>
+</html>

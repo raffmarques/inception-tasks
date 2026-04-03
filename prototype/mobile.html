@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>bujo — mobile view</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="prototype.css">
+</head>
+<body>
+
+<div class="shell">
+
+  <!-- VIEW TABS -->
+  <div style="padding-top:14px">
+    <nav class="view-tabs">
+      <a href="index.html" class="view-tab">focus</a>
+      <a href="flow.html" class="view-tab">flow</a>
+      <a href="design-system.html" class="view-tab">design system</a>
+      <a href="mobile.html" class="view-tab active">&#9656; mobile</a>
+    </nav>
+  </div>
+
+  <!-- ── MOBILE VIEW ── -->
+  <div class="view" id="view-mobile">
+    <div style="padding:8px 0 24px">
+      <div style="font-family:var(--font-display);font-size:1.2rem;font-weight:500;font-style:italic;margin-bottom:4px">Mobile Adaptation</div>
+      <div style="font-family:var(--font-mono);font-size:0.65rem;color:var(--ink-ghost);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:16px">390 × 844 · iPhone scale</div>
+      <div style="font-family:var(--font-mono);font-size:0.72rem;color:var(--ink-faint);line-height:1.7;max-width:600px;margin-bottom:32px">
+        Three screens side-by-side: <strong>focus (day view)</strong>, <strong>flow view</strong>, and <strong>week sidebar bottom sheet</strong>.
+        Key changes from desktop: bottom nav replaces top tabs, signifier column widens to 44px touch target,
+        sidebar becomes a chip-triggered bottom drawer, task detail becomes a bottom sheet.
+      </div>
+    </div>
+
+    <div class="phone-frame-outer">
+
+      <!-- PHONE 1: Focus / Day View -->
+      <div>
+        <div class="phone-screen-label">focus · day view</div>
+        <div class="phone-frame">
+          <div class="phone-inner">
+
+            <!-- Mobile header -->
+            <div class="m-header">
+              <div>
+                <span class="m-header__brand">bujo</span>
+              </div>
+              <div class="m-header__date">sunday · mar 22</div>
+              <div class="m-header__actions">
+                <div class="sync-dot"></div>
+                <button class="m-icon-btn" title="Lists">&#9783;</button>
+              </div>
+            </div>
+
+            <!-- Zoom strip -->
+            <div class="m-zoom-strip">
+              <button class="m-zoom-pill active">day</button>
+              <button class="m-zoom-pill">week</button>
+              <button class="m-zoom-pill">month</button>
+              <button class="m-zoom-pill">qtr</button>
+              <button class="m-zoom-pill">year</button>
+            </div>
+
+            <!-- Date nav -->
+            <div class="m-date-nav">
+              <button class="m-nav-arrow">&#8249;</button>
+              <div style="text-align:center">
+                <div class="m-date-nav__title">Sunday</div>
+                <span class="m-date-nav__sub">22 mar 2026 · W12</span>
+              </div>
+              <button class="m-nav-arrow">&#8250;</button>
+            </div>
+
+            <!-- Mode selector -->
+            <div class="m-mode-selector">
+              <button class="m-mode-btn active">manual</button>
+              <button class="m-mode-btn">time·effort</button>
+              <button class="m-mode-btn">time·boxing</button>
+            </div>
+
+            <!-- Scroll content -->
+            <div class="m-scroll">
+
+              <!-- Highlight -->
+              <div class="m-highlight">
+                <div class="m-highlight__label">today's highlight</div>
+                <div class="m-highlight__content">Ship the FlowView redesign and get feedback from the team</div>
+              </div>
+
+              <!-- Task list -->
+              <div class="m-task-item m-task-item--completed" onclick="mOpenDetail()">
+                <div class="m-task-item__sig-wrap" onclick="event.stopPropagation()">
+                  <span class="m-task-item__sig">&#9679;</span>
+                </div>
+                <div class="m-task-item__body">
+                  <span class="m-task-item__content">Refactor sync hook</span>
+                  <div class="m-task-item__badges">
+                    <span class="task-badge task-badge--time">45m</span>
+                    <span class="task-badge task-badge--category">dev</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="m-task-item" onclick="mOpenDetail()">
+                <div class="m-task-item__sig-wrap" onclick="event.stopPropagation()">
+                  <span class="m-task-item__sig">&#9675;</span>
+                </div>
+                <div class="m-task-item__body">
+                  <span class="m-task-item__content">Write migration flow tests</span>
+                  <div class="m-task-item__badges">
+                    <span class="task-badge task-badge--time">1h</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="m-task-item" onclick="mOpenDetail()">
+                <div class="m-task-item__sig-wrap" onclick="event.stopPropagation()">
+                  <span class="m-task-item__sig">&#9675;</span>
+                </div>
+                <div class="m-task-item__body">
+                  <span class="m-task-item__content">Review design system with Raff</span>
+                  <div class="m-task-item__badges">
+                    <span class="task-badge task-badge--category">collab</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="m-task-item" onclick="mOpenDetail()">
+                <div class="m-task-item__sig-wrap" onclick="event.stopPropagation()">
+                  <span class="m-task-item__sig">&#9675;</span>
+                </div>
+                <div class="m-task-item__body">
+                  <span class="m-task-item__content">Deploy preview to Vercel</span>
+                  <div class="m-task-item__badges">
+                    <span class="task-badge task-badge--time">15m</span>
+                    <span class="task-badge task-badge--category">dev</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="m-task-item m-task-item--migrated" onclick="mOpenDetail()">
+                <div class="m-task-item__sig-wrap" onclick="event.stopPropagation()">
+                  <span class="m-task-item__sig">&#8250;</span>
+                </div>
+                <div class="m-task-item__body">
+                  <span class="m-task-item__content">Update CLAUDE.md with new patterns</span>
+                </div>
+              </div>
+
+              <div class="m-task-item m-task-item--cancelled">
+                <div class="m-task-item__sig-wrap">
+                  <span class="m-task-item__sig">&#215;</span>
+                </div>
+                <div class="m-task-item__body">
+                  <span class="m-task-item__content">Draft blog post</span>
+                </div>
+              </div>
+
+              <!-- Add task -->
+              <div class="m-task-add">
+                <div class="m-task-add__sig-wrap">
+                  <span class="m-task-add__sig">&#9675;</span>
+                </div>
+                <input class="m-task-add__input" placeholder="new task...">
+              </div>
+
+              <!-- Week peek chip -->
+              <button class="m-week-chip" onclick="mOpenSheet()">
+                <span class="m-week-chip__label">W12 · this week</span>
+                <span class="m-week-chip__count">2 open</span>
+                <span class="m-week-chip__arrow">&#8250;</span>
+              </button>
+
+              <div style="height:24px"></div>
+            </div>
+
+            <!-- Bottom nav -->
+            <div class="m-bottom-nav">
+              <button class="m-nav-item active">
+                <span class="m-nav-item__icon">&#9675;</span>
+                <span class="m-nav-item__label">focus</span>
+              </button>
+              <button class="m-nav-item">
+                <span class="m-nav-item__icon">&#9135;</span>
+                <span class="m-nav-item__label">flow</span>
+              </button>
+              <button class="m-nav-item">
+                <span class="m-nav-item__icon">&#8801;</span>
+                <span class="m-nav-item__label">lists</span>
+              </button>
+              <button class="m-nav-item">
+                <span class="m-nav-item__icon">&#8635;</span>
+                <span class="m-nav-item__label">migrate</span>
+              </button>
+            </div>
+
+            <!-- Task detail bottom sheet -->
+            <div class="m-sheet-backdrop" id="mDetailBackdrop" onclick="mCloseDetail()"></div>
+            <div class="m-detail-sheet" id="mDetailSheet">
+              <div class="m-detail-sheet__handle"></div>
+              <div class="m-detail-sheet__header">
+                <span class="m-detail-sig">&#9675;</span>
+                <textarea class="m-detail-title" rows="2">Write migration flow tests</textarea>
+                <button class="m-detail-close" onclick="mCloseDetail()">&#10005;</button>
+              </div>
+              <div class="m-detail-sheet__body">
+                <div class="detail-field">
+                  <div class="detail-field__label">description</div>
+                  <textarea class="detail-field__textarea">Cover the carry / migrate / cancel flows.</textarea>
+                </div>
+                <div class="detail-row">
+                  <div class="detail-field">
+                    <div class="detail-field__label">category</div>
+                    <input class="detail-field__input" value="dev">
+                  </div>
+                  <div class="detail-field">
+                    <div class="detail-field__label">estimate</div>
+                    <input class="detail-field__input" value="1h">
+                  </div>
+                </div>
+                <div class="detail-field">
+                  <div class="detail-field__label">subtasks</div>
+                  <div class="subtask-list">
+                    <div class="subtask-item"><input type="checkbox" checked id="ms1"><label class="subtask-item__label checked" for="ms1">Carry flow test</label></div>
+                    <div class="subtask-item"><input type="checkbox" id="ms2"><label class="subtask-item__label" for="ms2">Migrate flow test</label></div>
+                    <div class="subtask-item"><input type="checkbox" id="ms3"><label class="subtask-item__label" for="ms3">Cancel flow test</label></div>
+                  </div>
+                </div>
+              </div>
+              <div class="m-detail-sheet__footer">
+                <button class="btn-danger">delete</button>
+                <div style="flex:1"></div>
+                <button class="btn-primary" onclick="mCloseDetail()">save</button>
+              </div>
+            </div>
+
+            <!-- Week sheet -->
+            <div class="m-sheet-backdrop" id="mSheetBackdrop" onclick="mCloseSheet()"></div>
+            <div class="m-sheet" id="mWeekSheet">
+              <div class="m-sheet__handle"></div>
+              <div class="m-sheet__header">
+                <span class="m-sheet__title">W12 · this week</span>
+                <span class="m-sheet__meta">2 open · 1 done</span>
+              </div>
+              <div class="m-sheet__body">
+                <div class="m-highlight" style="margin:0 0 14px">
+                  <div class="m-highlight__label">week highlight</div>
+                  <div class="m-highlight__content">Land the new design system before Friday</div>
+                </div>
+                <div class="m-task-item">
+                  <div class="m-task-item__sig-wrap"><span class="m-task-item__sig">&#9675;</span></div>
+                  <div class="m-task-item__body"><span class="m-task-item__content">Q1 planning retrospective</span></div>
+                </div>
+                <div class="m-task-item">
+                  <div class="m-task-item__sig-wrap"><span class="m-task-item__sig">&#9675;</span></div>
+                  <div class="m-task-item__body"><span class="m-task-item__content">Finalize Supabase migration schema</span></div>
+                </div>
+                <div class="m-task-item m-task-item--completed">
+                  <div class="m-task-item__sig-wrap"><span class="m-task-item__sig">&#9679;</span></div>
+                  <div class="m-task-item__body"><span class="m-task-item__content">Set up Google Calendar sync</span></div>
+                </div>
+                <div class="m-task-add" style="margin-top:8px">
+                  <div class="m-task-add__sig-wrap"><span class="m-task-add__sig">&#9675;</span></div>
+                  <input class="m-task-add__input" placeholder="add to week...">
+                </div>
+                <div style="height:16px"></div>
+                <div style="font-family:var(--font-mono);font-size:0.6rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink-ghost);margin-bottom:8px">Reflection</div>
+                <div style="font-family:var(--font-display);font-style:italic;font-size:0.82rem;color:var(--ink-mid);margin-bottom:10px">Finished the period-pinning feature</div>
+                <div class="rating-group">
+                  <button class="rating-btn good active" onclick="setRating(this)">good</button>
+                  <button class="rating-btn okay" onclick="setRating(this)">okay</button>
+                  <button class="rating-btn missed" onclick="setRating(this)">missed</button>
+                </div>
+                <div style="height:24px"></div>
+              </div>
+            </div>
+
+          </div><!-- /phone-inner -->
+        </div><!-- /phone-frame -->
+      </div>
+
+      <!-- PHONE 2: Flow View -->
+      <div>
+        <div class="phone-screen-label">flow view</div>
+        <div class="phone-frame">
+          <div class="phone-inner">
+
+            <div class="m-header">
+              <div><span class="m-header__brand">bujo</span></div>
+              <div class="m-header__date">march 2026</div>
+              <div class="m-header__actions">
+                <div class="sync-dot"></div>
+                <button class="m-icon-btn">&#9783;</button>
+              </div>
+            </div>
+
+            <div class="m-zoom-strip">
+              <button class="m-zoom-pill">day</button>
+              <button class="m-zoom-pill active">week</button>
+              <button class="m-zoom-pill">month</button>
+              <button class="m-zoom-pill">qtr</button>
+              <button class="m-zoom-pill">year</button>
+            </div>
+
+            <div class="m-date-nav">
+              <button class="m-nav-arrow">&#8249;</button>
+              <div style="text-align:center">
+                <div class="m-date-nav__title">W10 – W14</div>
+                <span class="m-date-nav__sub">march 2026</span>
+              </div>
+              <button class="m-nav-arrow">&#8250;</button>
+            </div>
+
+            <!-- Flow columns - horizontal scroll -->
+            <div class="m-flow-scroll" style="flex:1">
+              <div class="m-flow-col">
+                <div class="m-flow-col__header">
+                  <div class="m-flow-col__title">Monday</div>
+                  <div class="m-flow-col__subtitle">Mar 18</div>
+                </div>
+                <div class="m-flow-task m-flow-task--completed">
+                  <span class="m-flow-task__sig">&#9679;</span>
+                  <span class="m-flow-task__content">Team standup</span>
+                </div>
+                <div class="m-flow-task m-flow-task--completed">
+                  <span class="m-flow-task__sig">&#9679;</span>
+                  <span class="m-flow-task__content">Fix auth bug</span>
+                </div>
+                <div class="m-flow-task m-flow-task--migrated">
+                  <span class="m-flow-task__sig">&#8250;</span>
+                  <span class="m-flow-task__content">Write API docs</span>
+                </div>
+              </div>
+
+              <div class="m-flow-col">
+                <div class="m-flow-col__header">
+                  <div class="m-flow-col__title">Tuesday</div>
+                  <div class="m-flow-col__subtitle">Mar 19</div>
+                </div>
+                <div class="m-flow-highlight">
+                  <span class="m-flow-highlight__icon">&#9728;</span>
+                  <span class="m-flow-highlight__text">Ship period-pinning</span>
+                </div>
+                <div class="m-flow-task m-flow-task--completed">
+                  <span class="m-flow-task__sig">&#9679;</span>
+                  <span class="m-flow-task__content">Period-pinning</span>
+                </div>
+                <div class="m-flow-task m-flow-task--completed">
+                  <span class="m-flow-task__sig">&#9679;</span>
+                  <span class="m-flow-task__content">PR review</span>
+                </div>
+              </div>
+
+              <div class="m-flow-col m-flow-col--current">
+                <div class="m-flow-col__header">
+                  <div class="m-flow-col__title">Sunday</div>
+                  <div class="m-flow-col__subtitle">Mar 22 · today</div>
+                </div>
+                <div class="m-flow-highlight">
+                  <span class="m-flow-highlight__icon">&#9728;</span>
+                  <span class="m-flow-highlight__text">Ship FlowView redesign</span>
+                </div>
+                <div class="m-flow-task">
+                  <span class="m-flow-task__sig">&#9675;</span>
+                  <span class="m-flow-task__content">Migration flow tests</span>
+                </div>
+                <div class="m-flow-task">
+                  <span class="m-flow-task__sig">&#9675;</span>
+                  <span class="m-flow-task__content">Deploy to Vercel</span>
+                </div>
+              </div>
+
+              <div class="m-flow-col">
+                <div class="m-flow-col__header">
+                  <div class="m-flow-col__title">Monday</div>
+                  <div class="m-flow-col__subtitle">Mar 23</div>
+                </div>
+                <div class="m-flow-task">
+                  <span class="m-flow-task__sig">&#9675;</span>
+                  <span class="m-flow-task__content">Implement CSS</span>
+                </div>
+              </div>
+
+              <div class="m-flow-col">
+                <div class="m-flow-col__header">
+                  <div class="m-flow-col__title">Tuesday</div>
+                  <div class="m-flow-col__subtitle">Mar 24</div>
+                </div>
+              </div>
+
+              <div class="m-flow-col">
+                <div class="m-flow-col__header">
+                  <div class="m-flow-col__title">Wednesday</div>
+                  <div class="m-flow-col__subtitle">Mar 25</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Period peek chip at bottom -->
+            <div style="border-top:1px solid var(--cream-dark);padding:8px 20px;flex-shrink:0;background:var(--cream)">
+              <button class="m-week-chip" style="margin:0;width:100%" onclick="mOpenMarchSheet()">
+                <span class="m-week-chip__label">March · period tasks</span>
+                <span class="m-week-chip__count">3 open</span>
+                <span class="m-week-chip__arrow">&#8679;</span>
+              </button>
+            </div>
+
+            <div class="m-bottom-nav">
+              <button class="m-nav-item">
+                <span class="m-nav-item__icon">&#9675;</span>
+                <span class="m-nav-item__label">focus</span>
+              </button>
+              <button class="m-nav-item active">
+                <span class="m-nav-item__icon">&#9135;</span>
+                <span class="m-nav-item__label">flow</span>
+              </button>
+              <button class="m-nav-item">
+                <span class="m-nav-item__icon">&#8801;</span>
+                <span class="m-nav-item__label">lists</span>
+              </button>
+              <button class="m-nav-item">
+                <span class="m-nav-item__icon">&#8635;</span>
+                <span class="m-nav-item__label">migrate</span>
+              </button>
+            </div>
+
+            <!-- Period sheet (replaces peek sidebar) -->
+            <div class="m-sheet-backdrop" id="mMarchBackdrop" onclick="mCloseMarchSheet()"></div>
+            <div class="m-sheet" id="mMarchSheet">
+              <div class="m-sheet__handle"></div>
+              <div class="m-sheet__header">
+                <span class="m-sheet__title">March</span>
+                <span class="m-sheet__meta">3 open · 2 done</span>
+              </div>
+              <div class="m-sheet__body">
+                <div class="m-highlight" style="margin:0 0 12px">
+                  <div class="m-highlight__label">month highlight</div>
+                  <div class="m-highlight__content">Ship the new design system and get it deployed</div>
+                </div>
+                <div class="m-task-item">
+                  <div class="m-task-item__sig-wrap"><span class="m-task-item__sig" style="color:var(--copper)">&#8250;</span></div>
+                  <div class="m-task-item__body"><span class="m-task-item__content">Q1 planning retro</span></div>
+                </div>
+                <div class="m-task-item">
+                  <div class="m-task-item__sig-wrap"><span class="m-task-item__sig">&#9675;</span></div>
+                  <div class="m-task-item__body"><span class="m-task-item__content">Finalize Supabase schema</span></div>
+                </div>
+                <div class="m-task-item">
+                  <div class="m-task-item__sig-wrap"><span class="m-task-item__sig">&#9675;</span></div>
+                  <div class="m-task-item__body"><span class="m-task-item__content">Ship CSS redesign</span></div>
+                </div>
+                <div class="m-task-add" style="margin-top:8px">
+                  <div class="m-task-add__sig-wrap"><span class="m-task-add__sig">&#9675;</span></div>
+                  <input class="m-task-add__input" placeholder="add to march...">
+                </div>
+                <div style="height:24px"></div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- ANNOTATIONS PANEL -->
+      <div style="flex-shrink:0;width:280px;padding-top:34px">
+        <div style="font-family:var(--font-mono);font-size:0.6rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-ghost);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--cream-dark)">Design decisions</div>
+        <div style="display:flex;flex-direction:column;gap:20px">
+
+          <div>
+            <div style="font-family:var(--font-mono);font-size:0.7rem;font-weight:500;color:var(--ink);margin-bottom:4px">&#8627; bottom nav</div>
+            <div style="font-family:var(--font-mono);font-size:0.68rem;color:var(--ink-faint);line-height:1.6">View tabs move from top to bottom. Copper top-line marker on active tab — mirrors the flow column treatment. 4 tabs: focus · flow · lists · migrate.</div>
+          </div>
+
+          <div>
+            <div style="font-family:var(--font-mono);font-size:0.7rem;font-weight:500;color:var(--ink);margin-bottom:4px">&#8627; 44px signifier target</div>
+            <div style="font-family:var(--font-mono);font-size:0.68rem;color:var(--ink-faint);line-height:1.6">Signifier column widens from 20px to 44px with a vertical divider — isolating the cycle-status tap from the open-detail tap. Meets WCAG 2.5.5 target size.</div>
+          </div>
+
+          <div>
+            <div style="font-family:var(--font-mono);font-size:0.7rem;font-weight:500;color:var(--ink);margin-bottom:4px">&#8627; sidebar &#8594; bottom sheet</div>
+            <div style="font-family:var(--font-mono);font-size:0.68rem;color:var(--ink-faint);line-height:1.6">The W12 sidebar chip at the bottom of the task list opens a sheet. This preserves the passive context of the desktop sidebar behind a single intentional tap.</div>
+          </div>
+
+          <div>
+            <div style="font-family:var(--font-mono);font-size:0.7rem;font-weight:500;color:var(--ink);margin-bottom:4px">&#8627; flow peek &#8594; bottom chip</div>
+            <div style="font-family:var(--font-mono);font-size:0.68rem;color:var(--ink-faint);line-height:1.6">The vertical peek sidebar strip becomes a persistent bottom chip above the nav bar. The up-arrow (↑) signals it expands upward. Period tasks slide up in a sheet.</div>
+          </div>
+
+          <div>
+            <div style="font-family:var(--font-mono);font-size:0.7rem;font-weight:500;color:var(--ink);margin-bottom:4px">&#8627; task detail sheet</div>
+            <div style="font-family:var(--font-mono);font-size:0.68rem;color:var(--ink-faint);line-height:1.6">Replaces the side panel — slides up to 90% height. Drag handle at top affords swipe-to-dismiss. Fields stack vertically (no 2-column grid on narrow screens).</div>
+          </div>
+
+          <div>
+            <div style="font-family:var(--font-mono);font-size:0.7rem;font-weight:500;color:var(--ink);margin-bottom:4px">&#8627; zoom strip</div>
+            <div style="font-family:var(--font-mono);font-size:0.68rem;color:var(--ink-faint);line-height:1.6">Zoom pills move below the header as a horizontally scrollable strip with pill-style buttons — no borders, just the active pill fills to ink.</div>
+          </div>
+
+          <div>
+            <div style="font-family:var(--font-mono);font-size:0.7rem;font-weight:500;color:var(--ink);margin-bottom:4px">&#8627; what stays the same</div>
+            <div style="font-family:var(--font-mono);font-size:0.68rem;color:var(--ink-faint);line-height:1.6">Flow view horizontal scroll is natural on touch. Highlight zone, signifier symbols, typography, and color tokens are identical — mobile is not a redesign, just a layout remap.</div>
+          </div>
+
+        </div>
+      </div>
+
+    </div><!-- /phone-frame-outer -->
+  </div><!-- /view-mobile -->
+
+</div><!-- /shell -->
+
+<script src="prototype.js" defer></script>
+</body>
+</html>

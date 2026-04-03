@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>bujo — design system</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="prototype.css">
+</head>
+<body>
+
+<div class="shell">
+
+  <!-- VIEW TABS -->
+  <div style="padding-top:14px">
+    <nav class="view-tabs">
+      <a href="index.html" class="view-tab">focus</a>
+      <a href="flow.html" class="view-tab">flow</a>
+      <a href="design-system.html" class="view-tab active">design system</a>
+      <a href="mobile.html" class="view-tab">&#9656; mobile</a>
+    </nav>
+  </div>
+
+  <!-- ── DESIGN SYSTEM ── -->
+  <div class="view" id="view-ds">
+    <div style="padding:8px 0 32px">
+      <div style="font-family:var(--font-display);font-size:1.5rem;font-weight:500;font-style:italic;margin-bottom:4px">Design System</div>
+      <div style="font-family:var(--font-mono);font-size:0.65rem;color:var(--ink-ghost);letter-spacing:0.1em;text-transform:uppercase">bujo · typographer's field notes</div>
+    </div>
+
+    <div style="font-family:var(--font-mono);font-size:0.6rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-ghost);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--cream-dark)">Color Palette</div>
+    <div class="ds-grid" style="margin-bottom:40px">
+      <div class="ds-swatch" style="background:var(--ink);color:var(--cream)">
+        <div class="ds-swatch__name">--ink</div>
+        <div class="ds-swatch__val">#1A1612</div>
+      </div>
+      <div class="ds-swatch" style="background:var(--cream);border-color:var(--cream-dark)">
+        <div class="ds-swatch__name">--cream</div>
+        <div class="ds-swatch__val">#F6F1E7</div>
+      </div>
+      <div class="ds-swatch" style="background:var(--copper);color:var(--cream)">
+        <div class="ds-swatch__name">--copper</div>
+        <div class="ds-swatch__val">#B85C28</div>
+      </div>
+      <div class="ds-swatch" style="background:var(--sage);color:var(--cream)">
+        <div class="ds-swatch__name">--sage</div>
+        <div class="ds-swatch__val">#3D5246</div>
+      </div>
+      <div class="ds-swatch" style="background:var(--copper-pale)">
+        <div class="ds-swatch__name">--copper-pale</div>
+        <div class="ds-swatch__val">#F0DDD0</div>
+      </div>
+      <div class="ds-swatch" style="background:var(--sage-pale)">
+        <div class="ds-swatch__name">--sage-pale</div>
+        <div class="ds-swatch__val">#D6E4DE</div>
+      </div>
+    </div>
+
+    <div style="font-family:var(--font-mono);font-size:0.6rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-ghost);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--cream-dark)">Typography</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;margin-bottom:40px">
+      <div>
+        <div class="ds-type-sample">
+          <div class="ds-type-sample__label">Lora · display / headings</div>
+          <div style="font-family:var(--font-display);font-size:2rem;font-weight:500;letter-spacing:-0.02em;line-height:1.1">Sunday<br><em>March 22</em></div>
+        </div>
+        <div class="ds-type-sample">
+          <div class="ds-type-sample__label">Lora · italic / highlight content</div>
+          <div style="font-family:var(--font-display);font-style:italic;font-size:1rem;color:var(--ink-mid);line-height:1.5">Ship the FlowView redesign and get feedback from the team</div>
+        </div>
+      </div>
+      <div>
+        <div class="ds-type-sample">
+          <div class="ds-type-sample__label">JetBrains Mono · tasks / UI</div>
+          <div style="font-family:var(--font-mono);font-size:0.85rem;line-height:2.2">&#9675; Write migration flow tests<br>&#9679; Fix auth redirect bug<br>&#8250; Update CLAUDE.md<br>&#215; Blog post draft</div>
+        </div>
+        <div class="ds-type-sample">
+          <div class="ds-type-sample__label">Mono · labels / metadata</div>
+          <div style="font-family:var(--font-mono);font-size:0.6rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-ghost);line-height:2.5">today's highlight · W12 · synced · mar 22</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="font-family:var(--font-mono);font-size:0.6rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-ghost);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--cream-dark)">Signifiers</div>
+    <div style="display:flex;gap:32px;flex-wrap:wrap;margin-bottom:40px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-family:var(--font-mono);font-size:1.2rem;color:var(--sig-open)">&#9675;</span>
+        <div><div style="font-family:var(--font-mono);font-size:0.75rem">open</div><div style="font-family:var(--font-mono);font-size:0.6rem;color:var(--ink-ghost)">--ink-mid</div></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-family:var(--font-mono);font-size:1.2rem;color:var(--sig-done)">&#9679;</span>
+        <div><div style="font-family:var(--font-mono);font-size:0.75rem">completed</div><div style="font-family:var(--font-mono);font-size:0.6rem;color:var(--ink-ghost)">--sage</div></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-family:var(--font-mono);font-size:1.2rem;color:var(--sig-migrated)">&#8250;</span>
+        <div><div style="font-family:var(--font-mono);font-size:0.75rem">migrated</div><div style="font-family:var(--font-mono);font-size:0.6rem;color:var(--ink-ghost)">--copper</div></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-family:var(--font-mono);font-size:1.2rem;color:var(--sig-migrated)">&#8249;</span>
+        <div><div style="font-family:var(--font-mono);font-size:0.75rem">scheduled</div><div style="font-family:var(--font-mono);font-size:0.6rem;color:var(--ink-ghost)">--copper</div></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-family:var(--font-mono);font-size:1.2rem;color:var(--sig-cancelled)">&#215;</span>
+        <div><div style="font-family:var(--font-mono);font-size:0.75rem">cancelled</div><div style="font-family:var(--font-mono);font-size:0.6rem;color:var(--ink-ghost)">--ink-ghost</div></div>
+      </div>
+    </div>
+
+    <div style="font-family:var(--font-mono);font-size:0.6rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-ghost);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--cream-dark)">Components</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;margin-bottom:40px">
+      <div>
+        <div style="font-family:var(--font-mono);font-size:0.65rem;color:var(--ink-ghost);margin-bottom:10px">Badges</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <span class="task-badge task-badge--time">45m</span>
+          <span class="task-badge task-badge--time">1h 30m</span>
+          <span class="task-badge task-badge--category">dev</span>
+          <span class="task-badge task-badge--category">collab</span>
+          <span class="task-badge task-badge--category">personal</span>
+        </div>
+      </div>
+      <div>
+        <div style="font-family:var(--font-mono);font-size:0.65rem;color:var(--ink-ghost);margin-bottom:10px">Reflection ratings</div>
+        <div class="rating-group">
+          <button class="rating-btn good active" onclick="setRating(this)">good</button>
+          <button class="rating-btn okay" onclick="setRating(this)">okay</button>
+          <button class="rating-btn missed" onclick="setRating(this)">missed</button>
+        </div>
+      </div>
+      <div>
+        <div style="font-family:var(--font-mono);font-size:0.65rem;color:var(--ink-ghost);margin-bottom:10px">Highlight zone</div>
+        <div class="highlight-zone">
+          <div class="highlight-zone__label">today's highlight</div>
+          <div class="highlight-zone__content">Ship the FlowView redesign and get feedback</div>
+        </div>
+      </div>
+      <div>
+        <div style="font-family:var(--font-mono);font-size:0.65rem;color:var(--ink-ghost);margin-bottom:10px">Buttons</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+          <button class="btn-primary">confirm</button>
+          <button class="btn-ghost">lists</button>
+          <button class="btn-danger">delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /shell -->
+
+<script src="prototype.js" defer></script>
+</body>
+</html>
