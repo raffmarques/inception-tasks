@@ -6,7 +6,7 @@ import { Layout } from './components/Layout/Layout';
 import { DayView } from './components/DayView/DayView';
 import { WeekView } from './components/WeekView/WeekView';
 import { MonthView } from './components/MonthView/MonthView';
-import { FlowView } from './components/FlowView/FlowView';
+import { QuarterView } from './components/QuarterView/QuarterView';
 import { YearView } from './components/YearView/YearView';
 import { TaskDetail } from './components/TaskDetail/TaskDetail';
 import { MigrationFlow } from './components/MigrationFlow/MigrationFlow';
@@ -22,7 +22,8 @@ import { useSync } from './hooks/useSync';
 import { useGoogleCalendar } from './hooks/useGoogleCalendar';
 import { useDayOrganization } from './hooks/useDayOrganization';
 import { useLists } from './hooks/useLists';
-import { today, yesterday, toWeekKey, toMonthKey, fromDateKey, formatDayHeader } from './utils/dates';
+import { useNotifications } from './hooks/useNotifications';
+import { today, yesterday, toWeekKey, toMonthKey, toQuarterKey, fromDateKey, fromWeekKey, formatDayHeader } from './utils/dates';
 
 function App() {
   // Hash-based route for design system
@@ -69,10 +70,8 @@ function App() {
   const {
     currentDate,
     currentZoom,
-    viewMode,
     setCurrentDate,
     setZoom,
-    setViewMode,
     navigate,
     goToToday,
   } = useNavigation();
@@ -142,6 +141,10 @@ function App() {
     }
     return Array.from(cats).sort();
   }, [days]);
+
+  // All tasks flat — for notification checks
+  const allTasks = useMemo(() => Object.values(days).flatMap((d) => d.tasks), [days]);
+  useNotifications(allTasks);
 
   // Migration flow state
   const [showMigration, setShowMigration] = useState(false);
@@ -220,8 +223,6 @@ function App() {
   // Main app
   const dayData = getDay(currentDate);
   const dayHighlight = getHighlight('day', currentDate);
-  const isFlow = viewMode === 'flow';
-
   return (
     <DndContext
       sensors={outerSensors}
@@ -231,9 +232,7 @@ function App() {
     <Layout
       currentDate={currentDate}
       currentZoom={currentZoom}
-      viewMode={viewMode}
       onZoomChange={setZoom}
-      onViewModeChange={setViewMode}
       onNavigate={navigate}
       onGoToday={goToToday}
       syncStatus={syncStatus}
@@ -245,25 +244,7 @@ function App() {
       onToggleLists={() => setShowLists((v) => !v)}
       listsOpen={showLists}
     >
-      {isFlow ? (
-        <FlowView
-          currentDate={currentDate}
-          currentZoom={currentZoom}
-          days={days}
-          highlights={highlights}
-          onAddTask={(date, content) => addTask(date, content)}
-          onCycleStatus={(date, taskId) => cycleTaskStatus(date, taskId)}
-          onTaskClick={(date, taskId) => setSelectedTask({ date, taskId })}
-          onMoveTask={(fromKey, taskId, toKey) => moveTask(fromKey, taskId, toKey)}
-          onDayClick={(date) => {
-            setCurrentDate(date);
-            setViewMode('focus');
-            setZoom('day');
-          }}
-          onZoomUp={(zoom) => setZoom(zoom)}
-        />
-      ) : (
-        <>
+      <>
           {currentZoom === 'day' && draggingListItem && (
             <DayDropZone date={currentDate} label={formatDayHeader(currentDate)} />
           )}
@@ -310,35 +291,59 @@ function App() {
                 onClearWeekHighlight={() => clearHighlight('week', weekKey)}
                 onAddWeekTask={(content) => addTask(weekKey, content)}
                 onCycleDayTaskStatus={(date, taskId) => cycleTaskStatus(date, taskId)}
+                onCycleWeekTaskStatus={(taskId) => cycleTaskStatus(weekKey, taskId)}
+                onTaskClick={(dateKey, taskId) => setSelectedTask({ date: dateKey, taskId })}
                 onMoveTaskToDay={(fromKey, taskId, toDate) => moveTask(fromKey, taskId, toDate)}
               />
             );
           })()}
 
-          {currentZoom === 'month' && (
-            <MonthView
-              currentDate={currentDate}
-              days={days}
-              highlights={highlights}
-              monthHighlight={getHighlight('month', toMonthKey(fromDateKey(currentDate)))}
-              onDayClick={(date) => {
-                setCurrentDate(date);
-                setZoom('day');
-              }}
-              onSetMonthHighlight={(content) =>
-                setHighlight('month', toMonthKey(fromDateKey(currentDate)), content)
-              }
-              onClearMonthHighlight={() =>
-                clearHighlight('month', toMonthKey(fromDateKey(currentDate)))
-              }
-            />
-          )}
+          {currentZoom === 'month' && (() => {
+            const monthKey = toMonthKey(fromDateKey(currentDate));
+            return (
+              <MonthView
+                currentDate={currentDate}
+                days={days}
+                highlights={highlights}
+                monthHighlight={getHighlight('month', monthKey)}
+                monthKey={monthKey}
+                onDayClick={(date) => {
+                  setCurrentDate(date);
+                  setZoom('day');
+                }}
+                onSetMonthHighlight={(content) => setHighlight('month', monthKey, content)}
+                onClearMonthHighlight={() => clearHighlight('month', monthKey)}
+                onAddMonthTask={(content) => addTask(monthKey, content)}
+                onCycleDayTaskStatus={(date, taskId) => cycleTaskStatus(date, taskId)}
+                onCycleMonthTaskStatus={(taskId) => cycleTaskStatus(monthKey, taskId)}
+                onTaskClick={(dateKey, taskId) => setSelectedTask({ date: dateKey, taskId })}
+              />
+            );
+          })()}
 
-          {currentZoom === 'quarter' && (
-            <div className="placeholder-view">
-              <p className="placeholder-view__label">Quarter view coming soon</p>
-            </div>
-          )}
+          {currentZoom === 'quarter' && (() => {
+            const quarterKey = toQuarterKey(fromDateKey(currentDate));
+            return (
+              <QuarterView
+                currentDate={currentDate}
+                days={days}
+                highlights={highlights}
+                quarterHighlight={getHighlight('quarter', quarterKey)}
+                quarterKey={quarterKey}
+                onSetQuarterHighlight={(content) => setHighlight('quarter', quarterKey, content)}
+                onClearQuarterHighlight={() => clearHighlight('quarter', quarterKey)}
+                onAddQuarterTask={(content) => addTask(quarterKey, content)}
+                onCycleQuarterTaskStatus={(taskId) => cycleTaskStatus(quarterKey, taskId)}
+                onCycleWeekTaskStatus={(weekKey, taskId) => cycleTaskStatus(weekKey, taskId)}
+                onCycleDayTaskStatus={(date, taskId) => cycleTaskStatus(date, taskId)}
+                onTaskClick={(dateKey, taskId) => setSelectedTask({ date: dateKey, taskId })}
+                onWeekClick={(weekKey) => {
+                  setCurrentDate(fromWeekKey(weekKey));
+                  setZoom('week');
+                }}
+              />
+            );
+          })()}
 
           {currentZoom === 'year' && (
             <YearView
@@ -350,8 +355,7 @@ function App() {
               }}
             />
           )}
-        </>
-      )}
+      </>
       {selectedTask && (() => {
         const taskDay = getDay(selectedTask.date);
         const task = taskDay.tasks.find((t) => t.id === selectedTask.taskId);
