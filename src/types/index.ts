@@ -37,6 +37,7 @@ export interface Task {
   timeEstimate?: number;     // estimated minutes
   subtasks?: SubTask[];      // checklist sub-items
   attachments?: Attachment[];
+  notificationOffset?: string; // e.g. '1d', '2h', '1w' — relative offset before deadline
   updatedAt?: string;        // ISO timestamp for sync
 }
 
@@ -87,6 +88,36 @@ export interface BujoList {
   name: string;
   items: ListItem[];
   createdAt: string;
+}
+
+// === Year Map ===
+export interface CalGroup {
+  id: string;
+  name: string;
+  color: string;
+  visible: boolean;
+}
+
+export interface CalendarDef {
+  id: string;
+  groupId: string;
+  name: string;
+  color: string;
+  visible: boolean;
+}
+
+export interface CalEntry {
+  id: string;
+  calendarId: string;
+  name: string;
+  startDate: string; // YYYY-MM-DD
+  endDate: string;   // YYYY-MM-DD
+}
+
+export interface YearMapData {
+  groups: CalGroup[];
+  calendars: CalendarDef[];
+  entries: CalEntry[];
 }
 
 // Signifier map for rendering

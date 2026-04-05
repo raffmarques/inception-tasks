@@ -20,7 +20,15 @@ import './WeekView.css';
 
 // ── Draggable week task ──────────────────────────────────────────────────────
 
-function DraggableWeekTask({ task }: { task: Task }) {
+function DraggableWeekTask({
+  task,
+  onCycleStatus,
+  onTaskClick,
+}: {
+  task: Task;
+  onCycleStatus: () => void;
+  onTaskClick: () => void;
+}) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: `week-task-${task.id}`,
     data: { taskId: task.id },
@@ -30,12 +38,17 @@ function DraggableWeekTask({ task }: { task: Task }) {
     <div
       ref={setNodeRef}
       className={`week-view__week-task${isDragging ? ' week-view__week-task--dragging' : ''}`}
-      {...listeners}
-      {...attributes}
     >
-      <span className="week-view__week-task-grip">⠿</span>
-      <span className="week-view__week-task-sig">{SIGNIFIERS[task.status]}</span>
-      <span className="week-view__week-task-content">{task.content}</span>
+      <span className="week-view__week-task-grip" {...listeners} {...attributes}>⠿</span>
+      <button
+        className="week-view__week-task-sig"
+        onClick={(e) => { e.stopPropagation(); onCycleStatus(); }}
+      >
+        {SIGNIFIERS[task.status]}
+      </button>
+      <button className="week-view__week-task-content" onClick={onTaskClick}>
+        {task.content}
+      </button>
     </div>
   );
 }
@@ -50,6 +63,7 @@ function DroppableDayRow({
   isWeekendDay,
   onDayClick,
   onCycleStatus,
+  onTaskClick,
 }: {
   dateKey: string;
   day?: DayData;
@@ -58,6 +72,7 @@ function DroppableDayRow({
   isWeekendDay: boolean;
   onDayClick: (date: string) => void;
   onCycleStatus: (date: string, taskId: string) => void;
+  onTaskClick: (date: string, taskId: string) => void;
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: `day-${dateKey}` });
   const date = fromDateKey(dateKey);
@@ -93,14 +108,23 @@ function DroppableDayRow({
       {tasks.length > 0 && (
         <div className="week-view__day-tasks">
           {tasks.map((task) => (
-            <button
+            <div
               key={task.id}
               className={`week-view__day-task week-view__day-task--${task.status}`}
-              onClick={() => onCycleStatus(dateKey, task.id)}
             >
-              <span className="week-view__day-task-sig">{SIGNIFIERS[task.status]}</span>
-              <span className="week-view__day-task-content">{task.content}</span>
-            </button>
+              <button
+                className="week-view__day-task-sig"
+                onClick={() => onCycleStatus(dateKey, task.id)}
+              >
+                {SIGNIFIERS[task.status]}
+              </button>
+              <button
+                className="week-view__day-task-content"
+                onClick={() => onTaskClick(dateKey, task.id)}
+              >
+                {task.content}
+              </button>
+            </div>
           ))}
         </div>
       )}
@@ -121,6 +145,8 @@ interface Props {
   onClearWeekHighlight: () => void;
   onAddWeekTask: (content: string) => void;
   onCycleDayTaskStatus: (date: string, taskId: string) => void;
+  onCycleWeekTaskStatus: (taskId: string) => void;
+  onTaskClick: (dateKey: string, taskId: string) => void;
   onMoveTaskToDay: (fromKey: string, taskId: string, toDate: string) => void;
 }
 
@@ -135,6 +161,8 @@ export function WeekView({
   onClearWeekHighlight,
   onAddWeekTask,
   onCycleDayTaskStatus,
+  onCycleWeekTaskStatus,
+  onTaskClick,
   onMoveTaskToDay,
 }: Props) {
   const weekDays = getWeekDays(currentDate);
@@ -225,6 +253,7 @@ export function WeekView({
                   isWeekendDay={isWeekend(date)}
                   onDayClick={onDayClick}
                   onCycleStatus={onCycleDayTaskStatus}
+                  onTaskClick={onTaskClick}
                 />
               );
             })}
@@ -235,7 +264,12 @@ export function WeekView({
             <div className="week-view__panel-label">Week</div>
 
             {weekTasks.map((task) => (
-              <DraggableWeekTask key={task.id} task={task} />
+              <DraggableWeekTask
+                key={task.id}
+                task={task}
+                onCycleStatus={() => onCycleWeekTaskStatus(task.id)}
+                onTaskClick={() => onTaskClick(weekKey, task.id)}
+              />
             ))}
 
             {addingTask ? (

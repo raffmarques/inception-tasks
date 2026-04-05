@@ -23,6 +23,8 @@ import { useGoogleCalendar } from './hooks/useGoogleCalendar';
 import { useDayOrganization } from './hooks/useDayOrganization';
 import { useLists } from './hooks/useLists';
 import { useNotifications } from './hooks/useNotifications';
+import { useYearMap } from './hooks/useYearMap';
+import { YearMap } from './components/YearMap/YearMap';
 import { today, yesterday, toWeekKey, toMonthKey, toQuarterKey, toYearKey, fromDateKey, fromWeekKey, fromMonthKey, formatDayHeader } from './utils/dates';
 
 function App() {
@@ -87,6 +89,10 @@ function App() {
   // Lists
   const { lists, addList, removeList, addItem, removeItem } = useLists();
   const [showLists, setShowLists] = useState(false);
+  const [showYearMap, setShowYearMap] = useState(false);
+
+  // Year Map
+  const yearMap = useYearMap();
   const [draggingListItem, setDraggingListItem] = useState<{
     itemId: string; listId: string; content: string;
   } | null>(null);
@@ -243,13 +249,35 @@ function App() {
       onGcalDisconnect={gcal.disconnect}
       onToggleLists={() => setShowLists((v) => !v)}
       listsOpen={showLists}
+      yearMapOpen={showYearMap}
+      onToggleYearMap={() => setShowYearMap((v) => !v)}
     >
       <>
-          {currentZoom === 'day' && draggingListItem && (
+          {showYearMap && (() => {
+            const year = new Date(currentDate).getFullYear();
+            return (
+              <YearMap
+                year={year}
+                groups={yearMap.groups}
+                calendars={yearMap.calendars}
+                visibleEntries={yearMap.visibleEntries}
+                onAddGroup={yearMap.addGroup}
+                onRemoveGroup={yearMap.removeGroup}
+                onToggleGroup={yearMap.toggleGroup}
+                onAddCalendar={yearMap.addCalendar}
+                onRemoveCalendar={yearMap.removeCalendar}
+                onToggleCalendar={yearMap.toggleCalendar}
+                onAddEntry={yearMap.addEntry}
+                onRemoveEntry={yearMap.removeEntry}
+              />
+            );
+          })()}
+
+          {!showYearMap && currentZoom === 'day' && draggingListItem && (
             <DayDropZone date={currentDate} label={formatDayHeader(currentDate)} />
           )}
 
-          {currentZoom === 'day' && (
+          {!showYearMap && currentZoom === 'day' && (
             <DayView
               dayData={dayData}
               highlight={dayHighlight}
@@ -274,7 +302,7 @@ function App() {
             />
           )}
 
-          {currentZoom === 'week' && (() => {
+          {!showYearMap && currentZoom === 'week' && (() => {
             const weekKey = toWeekKey(fromDateKey(currentDate));
             return (
               <WeekView
@@ -298,7 +326,7 @@ function App() {
             );
           })()}
 
-          {currentZoom === 'month' && (() => {
+          {!showYearMap && currentZoom === 'month' && (() => {
             const monthKey = toMonthKey(fromDateKey(currentDate));
             return (
               <MonthView
@@ -321,7 +349,7 @@ function App() {
             );
           })()}
 
-          {currentZoom === 'quarter' && (() => {
+          {!showYearMap && currentZoom === 'quarter' && (() => {
             const quarterKey = toQuarterKey(fromDateKey(currentDate));
             return (
               <QuarterView
@@ -345,7 +373,7 @@ function App() {
             );
           })()}
 
-          {currentZoom === 'year' && (() => {
+          {!showYearMap && currentZoom === 'year' && (() => {
             const yearKey = toYearKey(fromDateKey(currentDate));
             return (
               <YearView

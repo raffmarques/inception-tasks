@@ -172,8 +172,7 @@
 
 /* Right: week tasks panel */
 .week-view__panel {
-  width: 148px;
-  flex-shrink: 0;
+  flex: 0 0 35%;
   padding: var(--space-sm);
   display: flex;
   flex-direction: column;
