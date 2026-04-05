@@ -17,14 +17,16 @@ const levels: { key: ZoomLevel; label: string }[] = [
 export function ZoomNav({ current, onChange }: Props) {
   return (
     <nav className="zoom-nav">
-      {levels.map(({ key, label }) => (
-        <button
-          key={key}
-          className={`zoom-nav__btn ${current === key ? 'zoom-nav__btn--active' : ''}`}
-          onClick={() => onChange(key)}
-        >
-          {label}
-        </button>
+      {levels.map(({ key, label }, i) => (
+        <span key={key} className="zoom-nav__item">
+          {i > 0 && <span className="zoom-nav__sep">›</span>}
+          <button
+            className={`zoom-nav__btn${current === key ? ' zoom-nav__btn--active' : ''}`}
+            onClick={() => onChange(key)}
+          >
+            {label}
+          </button>
+        </span>
       ))}
     </nav>
   );

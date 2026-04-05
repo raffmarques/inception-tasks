@@ -208,100 +208,106 @@ export function DayView({
       onDragEnd={handleDragEnd}
     >
       <div className="day-view">
-        <Highlight
-          highlight={highlight}
-          onSet={onSetHighlight}
-          onClear={onClearHighlight}
-          availableTasks={openTasks}
-          droppable={activeTask !== null}
-        />
+        <div className="focus-layout">
+          <div className="focus-main">
+            {calendarEvents && calendarEvents.length > 0 && orgData.mode === 'manual' && (
+              <CalendarEvents events={calendarEvents} loading={calendarLoading} />
+            )}
 
-        {calendarEvents && calendarEvents.length > 0 && orgData.mode === 'manual' && (
-          <CalendarEvents events={calendarEvents} loading={calendarLoading} />
-        )}
+            <div className="day-view__add-task">
+              <span className="day-view__add-sig">○</span>
+              <input
+                ref={inputRef}
+                className="day-view__add-input"
+                value={newTaskValue}
+                onChange={(e) => setNewTaskValue(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleAddTask();
+                }}
+                placeholder="new task..."
+              />
+            </div>
 
-        <div className="day-view__add-task">
-          <span className="day-view__add-sig">○</span>
-          <input
-            ref={inputRef}
-            className="day-view__add-input"
-            value={newTaskValue}
-            onChange={(e) => setNewTaskValue(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') handleAddTask();
-            }}
-            placeholder="new task..."
-          />
-        </div>
+            <ModeSelector mode={orgData.mode} onChange={onSetMode} />
 
-        <ModeSelector mode={orgData.mode} onChange={onSetMode} />
+            <div className="day-view__tasks">
+              {orgData.mode === 'manual' && (
+                <>
+                  {openTasks.length === 0 && completedTasks.length === 0 && otherTasks.length === 0 && (
+                    <div className="day-view__empty">
+                      <p>No tasks yet. Add one above, or set your highlight first.</p>
+                    </div>
+                  )}
 
-        <div className="day-view__tasks">
-          {orgData.mode === 'manual' && (
-            <>
-              {openTasks.length === 0 && completedTasks.length === 0 && otherTasks.length === 0 && (
-                <div className="day-view__empty">
-                  <p>No tasks yet. Add one above, or set your highlight first.</p>
-                </div>
+                  <SortableContext items={openTaskIds} strategy={verticalListSortingStrategy}>
+                    {openTasks.map((task) => (
+                      <SortableTaskItem
+                        key={task.id}
+                        task={task}
+                        onStatusChange={() => onCycleStatus(task.id)}
+                        onUpdate={(updates) => onUpdateTask(task.id, updates)}
+                        onDelete={() => onDeleteTask(task.id)}
+                        onSetAsHighlight={() => onSetHighlight(task.content, task.id)}
+                        onTaskClick={onTaskClick ? () => onTaskClick(task.id) : undefined}
+                      />
+                    ))}
+                  </SortableContext>
+
+                  {renderCompletedAndOther()}
+                </>
               )}
 
-              <SortableContext items={openTaskIds} strategy={verticalListSortingStrategy}>
-                {openTasks.map((task) => (
-                  <SortableTaskItem
-                    key={task.id}
-                    task={task}
-                    onStatusChange={() => onCycleStatus(task.id)}
-                    onUpdate={(updates) => onUpdateTask(task.id, updates)}
-                    onDelete={() => onDeleteTask(task.id)}
-                    onSetAsHighlight={() => onSetHighlight(task.content, task.id)}
-                    onTaskClick={onTaskClick ? () => onTaskClick(task.id) : undefined}
+              {orgData.mode === 'time-boxing' && (
+                <>
+                  <TimeBoxingView
+                    openTasks={openTasks}
+                    bucketAssignments={orgData.timeBoxing ?? {}}
+                    onCycleStatus={onCycleStatus}
+                    onUpdateTask={onUpdateTask}
+                    onDeleteTask={onDeleteTask}
+                    onSetAsHighlight={(taskId) => {
+                      const task = openTasks.find((t) => t.id === taskId);
+                      if (task) onSetHighlight(task.content, task.id);
+                    }}
+                    onTaskClick={onTaskClick}
+                    onClearTaskBucket={onClearTaskBucket}
                   />
-                ))}
-              </SortableContext>
+                  {renderCompletedAndOther()}
+                </>
+              )}
 
-              {renderCompletedAndOther()}
-            </>
-          )}
+              {orgData.mode === 'time-effort' && (
+                <>
+                  <TimeEffortView
+                    openTasks={openTasks}
+                    session={orgData.timeEffort ?? { totalMinutes: 60, taskIds: [] }}
+                    onSessionTimeChange={onSetSessionTime}
+                    onRemoveFromSession={onRemoveTaskFromSession}
+                    onCycleStatus={onCycleStatus}
+                    onUpdateTask={onUpdateTask}
+                    onDeleteTask={onDeleteTask}
+                    onSetAsHighlight={(taskId) => {
+                      const task = openTasks.find((t) => t.id === taskId);
+                      if (task) onSetHighlight(task.content, task.id);
+                    }}
+                    onTaskClick={onTaskClick}
+                  />
+                  {renderCompletedAndOther()}
+                </>
+              )}
+            </div>
+          </div>{/* focus-main */}
 
-          {orgData.mode === 'time-boxing' && (
-            <>
-              <TimeBoxingView
-                openTasks={openTasks}
-                bucketAssignments={orgData.timeBoxing ?? {}}
-                onCycleStatus={onCycleStatus}
-                onUpdateTask={onUpdateTask}
-                onDeleteTask={onDeleteTask}
-                onSetAsHighlight={(taskId) => {
-                  const task = openTasks.find((t) => t.id === taskId);
-                  if (task) onSetHighlight(task.content, task.id);
-                }}
-                onTaskClick={onTaskClick}
-                onClearTaskBucket={onClearTaskBucket}
-              />
-              {renderCompletedAndOther()}
-            </>
-          )}
-
-          {orgData.mode === 'time-effort' && (
-            <>
-              <TimeEffortView
-                openTasks={openTasks}
-                session={orgData.timeEffort ?? { totalMinutes: 60, taskIds: [] }}
-                onSessionTimeChange={onSetSessionTime}
-                onRemoveFromSession={onRemoveTaskFromSession}
-                onCycleStatus={onCycleStatus}
-                onUpdateTask={onUpdateTask}
-                onDeleteTask={onDeleteTask}
-                onSetAsHighlight={(taskId) => {
-                  const task = openTasks.find((t) => t.id === taskId);
-                  if (task) onSetHighlight(task.content, task.id);
-                }}
-                onTaskClick={onTaskClick}
-              />
-              {renderCompletedAndOther()}
-            </>
-          )}
-        </div>
+          <aside className="focus-sidebar">
+            <Highlight
+              highlight={highlight}
+              onSet={onSetHighlight}
+              onClear={onClearHighlight}
+              availableTasks={openTasks}
+              droppable={activeTask !== null}
+            />
+          </aside>
+        </div>{/* focus-layout */}
       </div>
 
       {pendingSessionTask && (

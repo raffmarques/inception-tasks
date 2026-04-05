@@ -45,6 +45,7 @@ If `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` are not set, the app runs in
 | `bujo-highlights` | `useHighlights` | `Record<string, Highlight>` keyed by `${level}-${date}` |
 | `bujo-day-org` | `useDayOrganization` | `Record<string, DayOrgData>` — per-day planning mode |
 | `bujo-lists` | `useLists` | `BujoList[]` — named lists with items |
+| `bujo-yearmap` | `useYearMap` | `YearMapData` — calendar groups, calendars, and date-range entries |
 
 ### State Management
 All state lives in custom hooks using `useLocalStorage`:
@@ -56,6 +57,7 @@ All state lives in custom hooks using `useLocalStorage`:
 - **`useDayOrganization`** — Per-day planning modes: manual, time-effort, time-boxing.
 - **`useLists`** — Named reference lists with drag-to-day support.
 - **`useGoogleCalendar`** — Google Calendar OAuth + event fetching via Supabase Edge Function.
+- **`useYearMap`** — Year Map data: calendar groups, individual calendars, date-range blocks.
 
 ### Key Data Types (src/types/index.ts)
 - **Task**: `{ id, content, status, createdDate, scheduledDate?, migratedTo?, parentId?, order, plannedStart?, plannedEnd?, deadline?, description?, category?, timeEstimate?, subtasks?, attachments?, updatedAt? }`
@@ -70,7 +72,7 @@ All state lives in custom hooks using `useLocalStorage`:
 ### Component Structure
 ```
 App.tsx — Root, wires all hooks, handles auth gate, migration check, drag context
-├── Layout/ — Header: date nav, zoom controls, sync status, sign out, gcal, lists toggle
+├── Layout/ — Header: brand, zoom nav, "Year Map" + "Lists" text links, sign out icon. Footer: sync dot + label, Google Calendar connect/disconnect, design system link.
 ├── Auth/
 │   └── LoginPage — Sign in / sign up form (shown when Supabase is configured + no session)
 ├── DayView/ — Main daily view
@@ -87,6 +89,7 @@ App.tsx — Root, wires all hooks, handles auth gate, migration check, drag cont
 ├── MonthView/ — Monthly calendar view (vertical day list with tasks inline)
 ├── QuarterView/ — Quarterly view: week rows grouped by month (left) + quarter tasks panel (right)
 ├── YearView/ — Year view: month rows grouped by quarter (left) + year tasks panel (right)
+├── YearMap/ — Year Map overlay: month×day grid table with colored date-range blocks per calendar group; toggled from header "Year Map" link
 │   └── YearGrid — (unused) original table-based year overview, preserved for future Year Map feature
 ├── CalendarEvents/ — Google Calendar events display in DayView
 ├── Lists/ — ListsPanel (slide-over) + DayDropZone for dragging list items to days
