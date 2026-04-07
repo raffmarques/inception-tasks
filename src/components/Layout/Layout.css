@@ -10,7 +10,6 @@
   top: 0;
   z-index: 10;
   background: var(--cream);
-  border-bottom: 2px solid var(--ink);
 }
 
 
@@ -153,34 +152,76 @@
 .layout__gcal-btn--connected { color: #4285f4; }
 .layout__gcal-btn--loading   { color: var(--ink-ghost); animation: sync-pulse 1s ease-in-out infinite; }
 
-/* Date nav row — subheader between brand row and content */
-.layout__date-row {
+/* Zoom strip — horizontally scrollable period selector for all zoom levels */
+.layout__day-strip {
   display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 20px;
-  border-top: 1px solid var(--cream-dark);
-  max-width: var(--max-width);
-  margin: 0 auto;
-  width: 100%;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  padding: 6px 20px;
+  gap: 0;
 }
-.layout__nav-btn {
-  width: 32px; height: 32px;
-  display: flex; align-items: center; justify-content: center;
-  border: 1px solid var(--cream-dark);
-  border-radius: var(--radius);
-  color: var(--ink-mid);
-  transition: all 0.12s;
-}
-.layout__nav-btn:hover { border-color: var(--ink-faint); background: var(--cream-mid); }
+.layout__day-strip::-webkit-scrollbar { display: none; }
 
-.layout__date-title {
-  font-family: var(--font-display);
-  font-size: var(--fs-xl);
-  font-weight: 500;
-  letter-spacing: -0.02em;
+.layout__day-cell {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  /* default (day) dimensions */
+  width: 70px;
+  height: 64px;
+  border: 1px solid var(--cream-dark);
+  border-right: none;
+  background: none;
+  cursor: pointer;
+  scroll-snap-align: center;
+  transition: background 0.1s;
+  gap: 2px;
+}
+/* Per-zoom widths */
+.layout__day-cell--week    { width: 92px; }
+.layout__day-cell--month   { width: 76px; }
+.layout__day-cell--quarter { width: 88px; }
+.layout__day-cell--year    { width: 72px; }
+
+.layout__day-cell--first { border-radius: var(--radius) 0 0 var(--radius); }
+.layout__day-cell--last  { border-right: 1px solid var(--cream-dark); border-radius: 0 var(--radius) var(--radius) 0; }
+.layout__day-cell:hover:not(.layout__day-cell--selected) { background: var(--cream-mid); }
+
+.layout__day-cell--selected {
+  background: var(--ink);
+  border-color: var(--ink);
+}
+.layout__day-cell--selected + .layout__day-cell { border-left-color: var(--ink); }
+.layout__day-cell--selected .layout__day-cell-num,
+.layout__day-cell--selected .layout__day-cell-abbr { color: var(--cream); }
+
+.layout__day-cell--today:not(.layout__day-cell--selected) .layout__day-cell-num {
+  color: var(--copper);
+}
+
+.layout__day-cell-num {
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  font-weight: 600;
   color: var(--ink);
-  /* left-aligned — no flex: 1 or text-align: center */
+  line-height: 1.2;
+}
+/* Smaller main text for longer labels (week/month/quarter/year) */
+.layout__day-cell--week .layout__day-cell-num    { font-size: 0.75rem; }
+.layout__day-cell--month .layout__day-cell-num   { font-size: 0.75rem; letter-spacing: 0.04em; }
+.layout__day-cell--quarter .layout__day-cell-num { font-size: 0.85rem; }
+.layout__day-cell--year .layout__day-cell-num    { font-size: 0.82rem; letter-spacing: 0.02em; }
+
+.layout__day-cell-abbr {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-ghost);
+  line-height: 1;
 }
 
 .layout__nav-sep {

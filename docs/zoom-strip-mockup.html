@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zoom Strip Mockup — bujo</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Lora:ital,wght@0,500;1,400&display=swap');
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --cream: #f5f0e8; --cream-mid: #ede8df; --cream-dark: #d8d2c6;
+    --ink: #1a1814; --ink-mid: #3d3830; --ink-faint: #6b6357; --ink-ghost: #9a8f84;
+    --copper: #b5632a; --copper-light: #d4845a; --copper-pale: #f0e0d4;
+    --font-mono: 'JetBrains Mono', monospace; --font-display: 'Lora', serif;
+  }
+  body { background: #1a1a1a; font-family: var(--font-mono); display: flex; min-height: 100vh; }
+
+  /* Controls */
+  .controls { width: 260px; flex-shrink: 0; background: #111; border-right: 1px solid #2a2a2a; padding: 24px 20px; display: flex; flex-direction: column; gap: 24px; overflow-y: auto; }
+  .controls h2 { font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase; color: #555; border-bottom: 1px solid #2a2a2a; padding-bottom: 10px; }
+  .control-group { display: flex; flex-direction: column; gap: 14px; }
+  .control-label { font-size: 0.65rem; letter-spacing: 0.08em; text-transform: uppercase; color: #666; display: flex; justify-content: space-between; align-items: center; }
+  .control-label span { color: #aaa; }
+  input[type=range] { width: 100%; accent-color: #b5632a; cursor: pointer; }
+  .toggle-row { display: flex; align-items: center; justify-content: space-between; font-size: 0.65rem; letter-spacing: 0.08em; text-transform: uppercase; color: #666; }
+  .toggle { width: 32px; height: 16px; background: #333; border-radius: 8px; position: relative; cursor: pointer; transition: background 0.15s; border: none; }
+  .toggle.on { background: #b5632a; }
+  .toggle::after { content: ''; position: absolute; width: 12px; height: 12px; border-radius: 50%; background: #fff; top: 2px; left: 2px; transition: transform 0.15s; }
+  .toggle.on::after { transform: translateX(16px); }
+  .zoom-btn-group { display: flex; gap: 4px; flex-wrap: wrap; }
+  .zoom-btn { padding: 4px 10px; border: 1px solid #333; background: none; color: #666; font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.08em; cursor: pointer; border-radius: 4px; transition: all 0.1s; }
+  .zoom-btn:hover { border-color: #555; color: #aaa; }
+  .zoom-btn.active { border-color: #b5632a; color: #b5632a; background: rgba(181,99,42,0.08); }
+
+  /* Right panel */
+  .right { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+  .preview { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 32px; }
+
+  /* App frame */
+  .app-frame { width: 100%; max-width: 420px; background: var(--cream); border-radius: 16px; overflow: hidden; box-shadow: 0 24px 60px rgba(0,0,0,0.5); }
+  .app-header { background: var(--cream); border-bottom: 2px solid var(--ink); }
+  .app-top-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px 10px; }
+  .app-brand { font-family: var(--font-display); font-style: italic; font-size: 0.9rem; color: var(--ink); }
+  .app-nav-hint { font-size: 0.55rem; color: var(--ink-ghost); letter-spacing: 0.06em; }
+  .app-zoom-tabs { display: flex; border-bottom: 1px solid var(--cream-dark); padding: 0 16px; }
+  .app-zoom-tab { font-family: var(--font-mono); font-size: 0.55rem; letter-spacing: 0.08em; text-transform: uppercase; padding: 6px 10px; color: var(--ink-ghost); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all 0.1s; background: none; border-left: none; border-right: none; border-top: none; }
+  .app-zoom-tab.active { color: var(--ink); border-bottom-color: var(--ink); }
+  .strip-wrapper { border-top: 1px solid var(--cream-dark); overflow: hidden; }
+  .zoom-strip { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; padding: 6px 16px; gap: 0; }
+  .zoom-strip::-webkit-scrollbar { display: none; }
+
+  /* Strip cells */
+  .strip-cell { flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1px solid var(--cream-dark); border-right: none; background: none; cursor: pointer; scroll-snap-align: center; transition: background 0.1s; font-family: var(--font-mono); color: var(--ink); gap: 2px; }
+  .strip-cell:hover:not(.selected) { background: var(--cream-mid); }
+  .strip-cell.selected { background: var(--ink); border-color: var(--ink); color: var(--cream); }
+  .strip-cell.selected + .strip-cell { border-left-color: var(--ink); }
+  .strip-cell.today:not(.selected) .cell-main { color: var(--copper); }
+  .cell-main { font-weight: 600; line-height: 1; }
+  .cell-sub { letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-ghost); line-height: 1; }
+  .strip-cell.selected .cell-sub { color: rgba(245,240,232,0.55); }
+
+  /* Simulated content */
+  .app-content { padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+  .content-title { font-family: var(--font-display); font-size: 1.1rem; color: var(--ink); font-weight: 500; }
+  .content-task { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--cream-mid); font-size: 0.7rem; color: var(--ink-mid); }
+  .task-bullet { color: var(--ink-ghost); font-size: 0.8rem; }
+
+  /* Prompt */
+  .prompt-area { border-top: 1px solid #2a2a2a; padding: 16px 24px; background: #111; display: flex; align-items: flex-start; gap: 12px; }
+  .prompt-text { flex: 1; font-size: 0.7rem; color: #888; line-height: 1.6; }
+  .copy-btn { padding: 6px 14px; background: #222; border: 1px solid #333; color: #aaa; font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.08em; cursor: pointer; border-radius: 4px; transition: all 0.1s; white-space: nowrap; }
+  .copy-btn:hover { border-color: #555; color: #ddd; }
+  .copy-btn.copied { border-color: #b5632a; color: #b5632a; }
+</style>
+</head>
+<body>
+
+<div class="controls">
+  <h2>Zoom Strip Explorer</h2>
+
+  <div class="control-group">
+    <div class="control-label">Active zoom level</div>
+    <div class="zoom-btn-group" id="zoomBtns">
+      <button class="zoom-btn active" data-zoom="day">Day</button>
+      <button class="zoom-btn" data-zoom="week">Week</button>
+      <button class="zoom-btn" data-zoom="month">Month</button>
+      <button class="zoom-btn" data-zoom="quarter">Quarter</button>
+      <button class="zoom-btn" data-zoom="year">Year</button>
+    </div>
+  </div>
+
+  <div class="control-group">
+    <label class="control-label">Cell width <span id="cellWidthVal">52px</span></label>
+    <input type="range" id="cellWidth" min="44" max="110" value="52">
+    <label class="control-label">Cell height <span id="cellHeightVal">52px</span></label>
+    <input type="range" id="cellHeight" min="40" max="80" value="52">
+  </div>
+
+  <div class="control-group">
+    <div class="toggle-row">Sub-label visible <button class="toggle on" id="toggleSub"></button></div>
+    <div class="toggle-row">Today accent <button class="toggle on" id="toggleToday"></button></div>
+    <div class="toggle-row">Rounded corners <button class="toggle on" id="toggleRounded"></button></div>
+  </div>
+
+  <div class="control-group">
+    <label class="control-label">Window (±cells) <span id="windowVal">10</span></label>
+    <input type="range" id="windowSize" min="3" max="20" value="10">
+  </div>
+</div>
+
+<div class="right">
+  <div class="preview">
+    <div class="app-frame">
+      <div class="app-header">
+        <div class="app-top-row">
+          <span class="app-brand">bujo</span>
+          <span class="app-nav-hint">Year Map · Lists</span>
+        </div>
+        <div class="app-zoom-tabs" id="zoomTabs"></div>
+        <div class="strip-wrapper">
+          <div class="zoom-strip" id="strip"></div>
+        </div>
+      </div>
+      <div class="app-content" id="appContent"></div>
+    </div>
+  </div>
+  <div class="prompt-area">
+    <div class="prompt-text" id="promptText"></div>
+    <button class="copy-btn" id="copyBtn">Copy prompt</button>
+  </div>
+</div>
+
+<script>
+const ZOOMS = ['day', 'week', 'month', 'quarter', 'year'];
+const DAY_ABBREVS = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+const MONTH_ABBREVS = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+const MONTH_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const QUARTER_RANGES = ['Jan–Mar','Apr–Jun','Jul–Sep','Oct–Dec'];
+
+const state = { zoom: 'day', selectedIndex: 0, cellWidth: 52, cellHeight: 52, showSub: true, todayAccent: true, rounded: true, window: 10 };
+
+const TODAY = new Date(); TODAY.setHours(0,0,0,0);
+
+function addDays(d, n)   { const r = new Date(d); r.setDate(r.getDate()+n); return r; }
+function addWeeks(d, n)  { return addDays(d, n*7); }
+function addMonths(d, n) { const r = new Date(d); r.setMonth(r.getMonth()+n); return r; }
+
+function isoWeek(d) {
+  const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  const day = t.getUTCDay() || 7;
+  t.setUTCDate(t.getUTCDate() + 4 - day);
+  const y = t.getUTCFullYear();
+  return Math.ceil((((t - Date.UTC(y,0,1)) / 86400000) + 1) / 7);
+}
+
+function weekRange(d) {
+  const dow = d.getDay() || 7;
+  const mon = addDays(d, 1 - dow);
+  const sun = addDays(mon, 6);
+  return `${MONTH_SHORT[mon.getMonth()]} ${mon.getDate()}–${sun.getDate()}`;
+}
+
+function buildCells() {
+  const cells = [];
+  for (let i = -state.window; i <= state.window; i++) {
+    let main, sub;
+    if (state.zoom === 'day') {
+      const d = addDays(TODAY, i);
+      main = String(d.getDate());
+      sub = DAY_ABBREVS[d.getDay()];
+    } else if (state.zoom === 'week') {
+      const d = addWeeks(TODAY, i);
+      main = `W${String(isoWeek(d)).padStart(2,'0')}`;
+      sub = weekRange(d);
+    } else if (state.zoom === 'month') {
+      const d = addMonths(TODAY, i);
+      main = MONTH_ABBREVS[d.getMonth()];
+      sub = String(d.getFullYear());
+    } else if (state.zoom === 'quarter') {
+      const d = addMonths(TODAY, i * 3);
+      const q = Math.floor(d.getMonth() / 3);
+      main = `Q${q+1}`;
+      sub = QUARTER_RANGES[q];
+    } else {
+      main = String(TODAY.getFullYear() + i);
+      sub = null;
+    }
+    cells.push({ offset: i, main, sub, isToday: i === 0, isSelected: i === state.selectedIndex });
+  }
+  return cells;
+}
+
+function sizesForZoom(zoom) {
+  const w = state.cellWidth;
+  const extraW = { day: 0, week: 28, month: 12, quarter: 28, year: 20 }[zoom];
+  const fs = { day: '1rem', week: '0.75rem', month: '0.7rem', quarter: '0.85rem', year: '0.8rem' }[zoom];
+  const subFs = { day: '0.42rem', week: '0.37rem', month: '0.42rem', quarter: '0.37rem', year: '0.42rem' }[zoom];
+  return { width: w + extraW, fontSize: fs, subFontSize: subFs };
+}
+
+function renderStrip() {
+  const strip = document.getElementById('strip');
+  while (strip.firstChild) strip.removeChild(strip.firstChild);
+
+  const cells = buildCells();
+  const { width, fontSize, subFontSize } = sizesForZoom(state.zoom);
+  const r = state.rounded ? '4px' : '0';
+
+  cells.forEach((cell, idx) => {
+    const btn = document.createElement('button');
+    btn.className = ['strip-cell', cell.isSelected ? 'selected' : '', (cell.isToday && state.todayAccent) ? 'today' : ''].filter(Boolean).join(' ');
+    btn.style.width = width + 'px';
+    btn.style.height = state.cellHeight + 'px';
+
+    if (idx === 0) btn.style.borderRadius = `${r} 0 0 ${r}`;
+    if (idx === cells.length - 1) {
+      btn.style.borderRadius = `0 ${r} ${r} 0`;
+      btn.style.borderRight = `1px solid ${cell.isSelected ? 'var(--ink)' : 'var(--cream-dark)'}`;
+    }
+
+    const mainEl = document.createElement('span');
+    mainEl.className = 'cell-main';
+    mainEl.style.fontSize = fontSize;
+    mainEl.textContent = cell.main;
+    btn.appendChild(mainEl);
+
+    if (cell.sub && state.showSub) {
+      const subEl = document.createElement('span');
+      subEl.className = 'cell-sub';
+      subEl.style.fontSize = subFontSize;
+      subEl.textContent = cell.sub;
+      btn.appendChild(subEl);
+    }
+
+    btn.addEventListener('click', () => { state.selectedIndex = cell.offset; renderAll(); });
+    strip.appendChild(btn);
+  });
+
+  const sel = strip.querySelector('.selected');
+  if (sel) sel.scrollIntoView({ behavior: 'instant', block: 'nearest', inline: 'center' });
+}
+
+function renderTabs() {
+  const tabs = document.getElementById('zoomTabs');
+  while (tabs.firstChild) tabs.removeChild(tabs.firstChild);
+  ZOOMS.forEach(z => {
+    const btn = document.createElement('button');
+    btn.className = 'app-zoom-tab' + (z === state.zoom ? ' active' : '');
+    btn.textContent = z;
+    btn.addEventListener('click', () => { state.zoom = z; state.selectedIndex = 0; renderAll(); });
+    tabs.appendChild(btn);
+  });
+}
+
+function getTitle() {
+  if (state.zoom === 'day') {
+    const d = addDays(TODAY, state.selectedIndex);
+    return d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+  }
+  if (state.zoom === 'week') {
+    const d = addWeeks(TODAY, state.selectedIndex);
+    return `Week ${isoWeek(d)} · ${d.getFullYear()}`;
+  }
+  if (state.zoom === 'month') {
+    const d = addMonths(TODAY, state.selectedIndex);
+    return d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  }
+  if (state.zoom === 'quarter') {
+    const d = addMonths(TODAY, state.selectedIndex * 3);
+    return `Q${Math.floor(d.getMonth()/3)+1} ${d.getFullYear()}`;
+  }
+  return String(TODAY.getFullYear() + state.selectedIndex);
+}
+
+function renderContent() {
+  const el = document.getElementById('appContent');
+  while (el.firstChild) el.removeChild(el.firstChild);
+
+  const title = document.createElement('div');
+  title.className = 'content-title';
+  title.textContent = getTitle();
+  el.appendChild(title);
+
+  ['Review quarterly goals', 'Update project roadmap', 'Team check-in'].forEach(t => {
+    const row = document.createElement('div');
+    row.className = 'content-task';
+    const bullet = document.createElement('span');
+    bullet.className = 'task-bullet';
+    bullet.textContent = '○';
+    const label = document.createElement('span');
+    label.textContent = t;
+    row.appendChild(bullet);
+    row.appendChild(label);
+    el.appendChild(row);
+  });
+}
+
+function updatePrompt() {
+  const subLabel = { day: 'day-of-week abbrev', week: 'date range', month: 'year', quarter: 'month range', year: null }[state.zoom];
+  const parts = [];
+  if (!state.showSub && subLabel) parts.push(`hide ${subLabel} sub-label`);
+  if (!state.todayAccent) parts.push('no copper today accent');
+  if (!state.rounded) parts.push('square corners');
+  if (state.cellWidth !== 52) parts.push(`${state.cellWidth}px base cell width`);
+  if (state.cellHeight !== 52) parts.push(`${state.cellHeight}px cell height`);
+  if (state.window !== 10) parts.push(`±${state.window} ${state.zoom}s visible`);
+
+  const descriptions = {
+    day: 'date number + day abbreviation (e.g. "7 TUE")',
+    week: 'week number + date range (e.g. "W14 · Mar 31–Apr 6")',
+    month: 'month abbreviation + year (e.g. "APR 2026")',
+    quarter: 'quarter label + month range (e.g. "Q2 · Apr–Jun")',
+    year: 'year number (e.g. "2026")',
+  };
+
+  const base = `Implement the ${state.zoom} zoom strip: a horizontally scrollable row of squares, each showing ${descriptions[state.zoom]}. The selected cell uses a filled ink background with cream text. Clicking any cell navigates directly to that period.`;
+  const suffix = parts.length ? ` Additional: ${parts.join(', ')}.` : '';
+  document.getElementById('promptText').textContent = base + suffix;
+}
+
+function renderAll() {
+  renderStrip();
+  renderTabs();
+  renderContent();
+  updatePrompt();
+  document.querySelectorAll('.zoom-btn').forEach(b => b.classList.toggle('active', b.dataset.zoom === state.zoom));
+}
+
+// Controls
+document.getElementById('zoomBtns').addEventListener('click', e => {
+  const z = e.target.dataset.zoom;
+  if (z) { state.zoom = z; state.selectedIndex = 0; renderAll(); }
+});
+document.getElementById('cellWidth').addEventListener('input', e => {
+  state.cellWidth = +e.target.value;
+  document.getElementById('cellWidthVal').textContent = state.cellWidth + 'px';
+  renderAll();
+});
+document.getElementById('cellHeight').addEventListener('input', e => {
+  state.cellHeight = +e.target.value;
+  document.getElementById('cellHeightVal').textContent = state.cellHeight + 'px';
+  renderAll();
+});
+document.getElementById('windowSize').addEventListener('input', e => {
+  state.window = +e.target.value;
+  document.getElementById('windowVal').textContent = state.window;
+  renderAll();
+});
+
+function wireToggle(id, key) {
+  document.getElementById(id).addEventListener('click', function() {
+    state[key] = !state[key];
+    this.classList.toggle('on', state[key]);
+    renderAll();
+  });
+}
+wireToggle('toggleSub', 'showSub');
+wireToggle('toggleToday', 'todayAccent');
+wireToggle('toggleRounded', 'rounded');
+
+document.getElementById('copyBtn').addEventListener('click', function() {
+  navigator.clipboard.writeText(document.getElementById('promptText').textContent);
+  this.textContent = 'Copied!';
+  this.classList.add('copied');
+  setTimeout(() => { this.textContent = 'Copy prompt'; this.classList.remove('copied'); }, 1500);
+});
+
+renderAll();
+</script>
+</body>
+</html>

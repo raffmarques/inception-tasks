@@ -12,7 +12,7 @@ import { TaskDetail } from './components/TaskDetail/TaskDetail';
 import { MigrationFlow } from './components/MigrationFlow/MigrationFlow';
 import { LoginPage } from './components/Auth/LoginPage';
 import { DesignSystem } from './components/DesignSystem/DesignSystem';
-import { ListsPanel } from './components/Lists/ListsPanel';
+import { ListsView } from './components/Lists/ListsView';
 import { DayDropZone } from './components/Lists/DayDropZone';
 import { useTasks } from './hooks/useTasks';
 import { useHighlights } from './hooks/useHighlights';
@@ -87,7 +87,7 @@ function App() {
   });
 
   // Lists
-  const { lists, addList, removeList, addItem, removeItem } = useLists();
+  const { lists, addList, removeList, renameList, addItem, removeItem, toggleItemStatus } = useLists();
   const [showLists, setShowLists] = useState(false);
   const [showYearMap, setShowYearMap] = useState(false);
 
@@ -117,9 +117,8 @@ function App() {
     if (overId.startsWith('day-drop-')) {
       const date = overId.replace('day-drop-', '');
       addTask(date, item.content);
-      removeItem(item.listId, item.itemId);
     }
-  }, [draggingListItem, addTask, removeItem]);
+  }, [draggingListItem, addTask]);
 
   // Day organization
   const dayOrg = useDayOrganization();
@@ -241,6 +240,7 @@ function App() {
       onZoomChange={setZoom}
       onNavigate={navigate}
       onGoToday={goToToday}
+      onGoToDate={setCurrentDate}
       syncStatus={syncStatus}
       onSignOut={signOut}
       gcalStatus={gcal.status}
@@ -415,14 +415,18 @@ function App() {
       })()}
     </Layout>
 
-    <ListsPanel
-      open={showLists}
-      lists={lists}
-      onClose={() => setShowLists(false)}
-      onAddList={addList}
-      onRemoveList={removeList}
-      onAddItem={addItem}
-    />
+    {showLists && (
+      <ListsView
+        lists={lists}
+        onClose={() => setShowLists(false)}
+        onAddList={addList}
+        onRemoveList={removeList}
+        onRenameList={renameList}
+        onAddItem={addItem}
+        onRemoveItem={removeItem}
+        onToggleItem={toggleItemStatus}
+      />
+    )}
 
     <DragOverlay>
       {draggingListItem ? (
