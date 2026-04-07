@@ -80,6 +80,7 @@ export interface DayOrgData {
 export interface ListItem {
   id: string;
   content: string;
+  status: 'open' | 'completed';
   order: number;
 }
 

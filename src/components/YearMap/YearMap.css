@@ -24,7 +24,33 @@
   color: var(--ink-ghost);
   margin-bottom: var(--space-md);
   font-family: var(--font-mono);
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
 }
+
+.yearmap__zoom-btns {
+  display: flex;
+  gap: 2px;
+  margin-left: auto;
+}
+
+.yearmap__zoom-btn {
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--cream-dark);
+  border-radius: var(--radius);
+  background: none;
+  color: var(--ink-ghost);
+  font-size: 0.85rem;
+  cursor: pointer;
+  line-height: 1;
+  transition: all 0.1s;
+}
+.yearmap__zoom-btn:hover { border-color: var(--ink-faint); color: var(--ink); background: var(--cream-mid); }
 
 .yearmap__scroll {
   overflow: auto;
@@ -42,7 +68,7 @@
 
 /* Header row */
 .yearmap__th-label {
-  width: 44px;
+  width: var(--ym-label);
   font-size: var(--fs-2xs);
   color: var(--ink-ghost);
   font-weight: normal;
@@ -59,7 +85,7 @@
 }
 
 .yearmap__th-day {
-  width: 26px;
+  width: var(--ym-cell);
   font-size: 9px;
   font-weight: normal;
   color: var(--ink-ghost);
@@ -73,7 +99,7 @@
   font-weight: bold;
 }
 
-/* Month label */
+/* Month label — width matches label column */
 .yearmap__month-label {
   font-size: var(--fs-2xs);
   color: var(--ink-faint);
@@ -96,9 +122,9 @@
 
 /* Day cells */
 .yearmap__day {
-  width: 26px;
+  width: var(--ym-cell);
   border: 1px solid var(--cream-dark);
-  cursor: default;
+  cursor: crosshair;
   vertical-align: middle;
 }
 
@@ -117,7 +143,7 @@
   color: var(--ink-ghost);
   text-align: center;
   display: block;
-  line-height: 18px;
+  line-height: var(--ym-cell);
   font-family: var(--font-mono);
 }
 
@@ -130,9 +156,21 @@
   background: transparent;
 }
 
+/* Draft highlight during drag */
+.yearmap__day--draft {
+  background: rgba(107, 143, 113, 0.25) !important;
+  outline: 1px solid rgba(107, 143, 113, 0.5);
+  outline-offset: -1px;
+}
+
+/* Prevent text selection while dragging */
+.yearmap__table--dragging {
+  user-select: none;
+}
+
 /* Block rows */
 .yearmap__block-row td {
-  height: 20px;
+  height: var(--ym-block);
   padding: 1px 0;
 }
 
@@ -144,15 +182,15 @@
 }
 
 .yearmap__block-empty {
-  height: 18px;
+  height: calc(var(--ym-block) - 2px);
 }
 
 .yearmap__block-cell {
-  height: 18px;
+  height: calc(var(--ym-block) - 2px);
 }
 
 .yearmap__block-fill {
-  height: 18px;
+  height: calc(var(--ym-block) - 2px);
   border-radius: 3px;
   display: flex;
   align-items: center;
@@ -471,6 +509,77 @@
 /* Entry form */
 .yearmap__entry-form {
   margin-top: var(--space-xs);
+}
+
+/* Drag hint in sidebar */
+.yearmap__drag-hint {
+  font-size: var(--fs-2xs);
+  color: var(--ink-ghost);
+  font-family: var(--font-mono);
+  letter-spacing: 0.04em;
+  font-style: italic;
+  margin-top: var(--space-sm);
+  border-top: 1px solid var(--cream-dark);
+  padding-top: var(--space-sm);
+  line-height: 1.5;
+}
+
+/* Inline entry creation panel */
+.yearmap__inline-panel {
+  position: fixed;
+  z-index: 200;
+  background: var(--ink);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 220px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+}
+
+.yearmap__inline-range {
+  font-size: var(--fs-2xs);
+  color: var(--ink-ghost);
+  font-family: var(--font-mono);
+  letter-spacing: 0.06em;
+}
+
+.yearmap__inline-name {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--cream);
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  width: 100%;
+  padding: 0;
+}
+.yearmap__inline-name::placeholder { color: var(--ink-faint); }
+
+.yearmap__inline-bottom {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.yearmap__inline-cal {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  color: var(--ink-ghost);
+  font-family: var(--font-mono);
+  font-size: var(--fs-2xs);
+  padding: 3px 5px;
+}
+.yearmap__inline-cal option { background: var(--ink); }
+
+.yearmap__inline-hint {
+  font-size: var(--fs-2xs);
+  color: var(--ink-faint);
+  font-family: var(--font-mono);
+  white-space: nowrap;
 }
 
 @media (max-width: 640px) {

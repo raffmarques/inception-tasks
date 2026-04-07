@@ -35,12 +35,18 @@
   --font-sans:    var(--font-mono); /* no longer used separately */
 
   /* Scale */
-  --fs-xs:   0.65rem;
+  --fs-xs:   0.78rem;
+  --fs-sm:   0.88rem;
+  --fs-base: 1rem;
+  --fs-lg:   1.25rem;
+  --fs-xl:   1.6rem;
+  --fs-2xl:  2rem;
+  /* --fs-xs:   0.65rem;
   --fs-sm:   0.78rem;
   --fs-base: 0.88rem;
   --fs-lg:   1rem;
   --fs-xl:   1.25rem;
-  --fs-2xl:  1.6rem;
+  --fs-2xl:  1.6rem; */
 
   --space-xs: 4px;
   --space-sm: 8px;

@@ -25,11 +25,10 @@ export function useLists() {
   }, [setLists]);
 
   const addItem = useCallback((listId: string, content: string) => {
-    const item: ListItem = { id: uuid(), content, order: 0 };
     setLists((prev) => prev.map((l) => {
       if (l.id !== listId) return l;
-      const items = [...l.items, { ...item, order: l.items.length }] as ListItem[];
-      return { ...l, items };
+      const item: ListItem = { id: uuid(), content, status: 'open', order: l.items.length };
+      return { ...l, items: [...l.items, item] };
     }));
   }, [setLists]);
 
@@ -40,5 +39,17 @@ export function useLists() {
     }));
   }, [setLists]);
 
-  return { lists, addList, removeList, renameList, addItem, removeItem };
+  const toggleItemStatus = useCallback((listId: string, itemId: string) => {
+    setLists((prev) => prev.map((l) => {
+      if (l.id !== listId) return l;
+      return {
+        ...l,
+        items: l.items.map((i) =>
+          i.id === itemId ? { ...i, status: i.status === 'open' ? 'completed' : 'open' } : i
+        ),
+      };
+    }));
+  }, [setLists]);
+
+  return { lists, addList, removeList, renameList, addItem, removeItem, toggleItemStatus };
 }
