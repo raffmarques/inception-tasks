@@ -177,7 +177,7 @@ export function Layout({
       </footer>
 
       {/* Mobile bottom nav */}
-      {(onToggleLists || onToggleYearMap) && (
+      {(onToggleLists || onToggleYearMap || onSignOut || !isToday) && (
         <nav className="layout__bottom-nav">
           {onToggleYearMap && (
             <button
@@ -195,6 +195,22 @@ export function Layout({
             >
               <span className="layout__bottom-nav-icon">⊞</span>
               <span className="layout__bottom-nav-label">lists</span>
+            </button>
+          )}
+          {!isToday && (
+            <button className="layout__bottom-nav-item" onClick={onGoToday}>
+              <span className="layout__bottom-nav-icon">
+                <FontAwesomeIcon icon={faCircleDot} />
+              </span>
+              <span className="layout__bottom-nav-label">today</span>
+            </button>
+          )}
+          {onSignOut && (
+            <button className="layout__bottom-nav-item" onClick={onSignOut}>
+              <span className="layout__bottom-nav-icon">
+                <FontAwesomeIcon icon={faRightFromBracket} />
+              </span>
+              <span className="layout__bottom-nav-label">sign out</span>
             </button>
           )}
         </nav>

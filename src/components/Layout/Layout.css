@@ -76,24 +76,6 @@
 }
 @media (max-width: 767px) {
   .layout__zoom-inline { display: none; }
-
-  /* Hide top menu/brand row on mobile — breadcrumb takes over as primary nav */
-  .layout__top-row { display: none; }
-
-  /* Breadcrumb 5× bigger on mobile; horizontal scroll handles overflow */
-  .layout__zoom-strip {
-    padding: 14px 20px;
-  }
-  .layout__zoom-strip .zoom-nav { flex-wrap: nowrap; }
-  .layout__zoom-strip .zoom-nav__btn {
-    font-size: 3rem;
-    padding: 10px 14px;
-    letter-spacing: 0.04em;
-  }
-  .layout__zoom-strip .zoom-nav__sep {
-    font-size: 3rem;
-    padding: 0 8px;
-  }
 }
 
 /* Today button */
@@ -264,8 +246,22 @@
 }
 
 @media (max-width: 640px) {
-  .layout__top-row { padding: 12px 16px 10px; }
-  .layout__zoom-strip { padding: 0 16px; }
+  /* Hide top menu/brand row on phones — breadcrumb is the primary header */
+  .layout__top-row { display: none; }
+
+  /* Breadcrumb 5× bigger on phones; horizontal scroll handles overflow */
+  .layout__zoom-strip { padding: 14px 16px; }
+  .layout__zoom-strip .zoom-nav { flex-wrap: nowrap; }
+  .layout__zoom-strip .zoom-nav__btn {
+    font-size: 3rem;
+    padding: 10px 14px;
+    letter-spacing: 0.04em;
+  }
+  .layout__zoom-strip .zoom-nav__sep {
+    font-size: 3rem;
+    padding: 0 8px;
+  }
+
   .layout__date-row   { padding: 8px 16px; }
   .layout__content    { padding: var(--space-sm); padding-bottom: 80px; }
 
