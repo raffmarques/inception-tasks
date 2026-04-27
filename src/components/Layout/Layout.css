@@ -63,6 +63,7 @@
   margin: 0 auto;
   width: 100%;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 .layout__zoom-strip::-webkit-scrollbar { display: none; }
 .layout__header--flow .layout__zoom-strip { max-width: none; }
@@ -75,6 +76,24 @@
 }
 @media (max-width: 767px) {
   .layout__zoom-inline { display: none; }
+
+  /* Hide top menu/brand row on mobile — breadcrumb takes over as primary nav */
+  .layout__top-row { display: none; }
+
+  /* Breadcrumb 5× bigger on mobile; horizontal scroll handles overflow */
+  .layout__zoom-strip {
+    padding: 14px 20px;
+  }
+  .layout__zoom-strip .zoom-nav { flex-wrap: nowrap; }
+  .layout__zoom-strip .zoom-nav__btn {
+    font-size: 3rem;
+    padding: 10px 14px;
+    letter-spacing: 0.04em;
+  }
+  .layout__zoom-strip .zoom-nav__sep {
+    font-size: 3rem;
+    padding: 0 8px;
+  }
 }
 
 /* Today button */
